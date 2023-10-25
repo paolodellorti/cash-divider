@@ -37,10 +37,17 @@
       </md-table>
       <md-list>
         <div
+        v-for="(quantity, days) in people"
+        :key="days + 'people'"
         >
           <md-list-item>
             <md-icon>family_restroom</md-icon>
-            <span class="md-list-item-text">Trash</span>
+            <span class="md-list-item-text">
+              <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <b>{{ days }}</b> giorni di presenza
+            </span>
+            <md-button class="md-icon-button md-list-action">
+              <md-icon class="md-primary">chat_bubble</md-icon>
+            </md-button>
             <md-button class="md-icon-button md-list-action">
               <md-icon class="md-primary">chat_bubble</md-icon>
             </md-button>
