@@ -114,10 +114,10 @@
       :md-fullscreen="false"
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
-        <md-autocomplete v-model="newPeople.quantity" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
+        <md-autocomplete v-model="newPeople.quantity" type="number" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
           <label>Numero di persone</label>
         </md-autocomplete>
-        <md-autocomplete v-model="newPeople.days" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
+        <md-autocomplete v-model="newPeople.days" type="number" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
       <md-dialog-actions>
