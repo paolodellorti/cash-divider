@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <h1>Divisore contanti pocket money</h1>
+    <h1>Pocket Money Manager</h1>
     <md-table>
       <md-table-row>
         <md-table-head>taglia</md-table-head>
@@ -41,11 +41,11 @@
           </span>
           <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity)">
             <md-icon class="md-primary">edit_square</md-icon>
-            <md-tooltip md-direction="top">Modifica</md-tooltip>
+            <md-tooltip v-if="!isMobile" md-direction="top">Modifica</md-tooltip>
           </md-button>
           <md-button class="md-icon-button md-list-action" @click=" deletingPeople = days; showDeleteDialog = true">
             <md-icon class="md-accent">delete</md-icon>
-            <md-tooltip md-direction="top">Elimina</md-tooltip>
+            <md-tooltip v-if="!isMobile" md-direction="top">Elimina</md-tooltip>
           </md-button>
         </md-list-item>
         <md-divider v-if="index + 1 < Object.keys(people).length"></md-divider>
@@ -79,11 +79,11 @@
             </span>
             <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity, members)">
               <md-icon class="md-primary">edit_square</md-icon>
-              <md-tooltip md-direction="top">Modifica</md-tooltip>
+              <md-tooltip v-if="!isMobile" md-direction="top">Modifica</md-tooltip>
             </md-button>
             <md-button class="md-icon-button md-list-action" @click="deletingFamilies = [members, days]; showDeleteDialog = true;">
               <md-icon class="md-accent">delete</md-icon>
-              <md-tooltip md-direction="top">Elimina</md-tooltip>
+              <md-tooltip v-if="!isMobile" md-direction="top">Elimina</md-tooltip>
             </md-button>
           </md-list-item>
           <md-divider v-if="index + 1 < Object.keys(families).length"></md-divider>
@@ -106,9 +106,13 @@
     </div>
 
     <div class="footer">
-      Cash Divider by Paolo Dell'Orti
+      Pocket Money Manager v1.01 by Paolo Dell'Orti
     </div>
-    <md-dialog :md-active.sync="showPeopleDialog" @md-closed="onCloseDialog(true)">
+    <md-dialog
+      :md-active.sync="showPeopleDialog"
+      @md-closed="onCloseDialog(true)"
+      :md-fullscreen="false"
+    >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
         <md-field :class="{'md-invalid': noValidForm && !newPeople.quantity}">
           <label>Numero di persone</label>
@@ -123,7 +127,11 @@
         <md-button class="md-primary" @click="addPeople">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
       </md-dialog-actions>
     </md-dialog>
-    <md-dialog :md-active.sync="showFamiliesDialog" @md-closed="onCloseDialog(false)">
+    <md-dialog
+      :md-active.sync="showFamiliesDialog"
+      :md-fullscreen="false"
+      @md-closed="onCloseDialog(false)"
+    >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi famiglie' }}</md-dialog-title>
         <md-field :class="{'md-invalid': noValidForm && !newFamilies.quantity}">
           <label>Numero di famiglie</label>
@@ -246,6 +254,13 @@ export default {
         `
       }
       return '1 famiglia da 3 membri con 4 giorni di presenza'
+    },
+    isMobile() {
+      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        return true
+      } else {
+        return false
+      }
     }
   },
   methods: {
