@@ -36,7 +36,7 @@
           <md-icon>{{ quantity == 1 ? 'person' : 'groups' }}</md-icon>
           <span class="md-list-item-text">
             <span>
-              <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
+              <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <br v-if="isMobile"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
             </span>
           </span>
           <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity)">
@@ -74,7 +74,7 @@
             <md-icon>family_restroom</md-icon>
             <span class="md-list-item-text">
               <span>
-                <b>{{ quantity }}</b> famigli{{ quantity == 1 ? 'a' : 'e' }} di <b>{{ members }}</b> membri con <b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
+                <b>{{ quantity }}</b> famigli{{ quantity == 1 ? 'a' : 'e' }} di <br v-if="isMobile"><b>{{ members }}</b> membri con <br v-if="isMobile"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
               </span>
             </span>
             <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity, members)">
