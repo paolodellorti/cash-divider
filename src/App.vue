@@ -114,10 +114,11 @@
       :md-fullscreen="false"
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
-        <md-autocomplete v-model="newPeople.quantity" type="number" :md-dense="true" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
+        <md-field :class="{'md-invalid': noValidForm && !newPeople.quantity}">
           <label>Numero di persone</label>
-        </md-autocomplete>
-        <md-autocomplete v-model="newPeople.days" type="number" :md-dense="true" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
+          <md-input v-model="newPeople.quantity" type="number" :min="1" required></md-input>
+        </md-field>
+        <md-autocomplete v-model="newPeople.days" type="number" :min="1" :md-dense="true" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.days}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
       <md-dialog-actions>
@@ -139,10 +140,9 @@
           <label>Numero di membri per famiglia</label>
           <md-input v-model="newFamilies.members" type="number" required></md-input>
         </md-field>
-        <md-field :class="{'md-invalid': noValidForm && !newFamilies.days}">
+        <md-autocomplete v-model="newFamilies.days" type="number" :min="1" :md-dense="true" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && !newFamilies.days}" required>
           <label>Giorni di presenza</label>
-          <md-input v-model="newFamilies.days" type="number" required></md-input>
-        </md-field>
+        </md-autocomplete>
       <md-dialog-actions>
         <md-button @click="showFamiliesDialog = false">Annulla</md-button>
         <md-button class="md-primary" @click="addFamilies">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
