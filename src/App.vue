@@ -114,14 +114,12 @@
       :md-fullscreen="false"
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
-        <md-field :class="{'md-invalid': noValidForm && !newPeople.quantity}">
+        <md-autocomplete v-model="newPeople.quantity" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
           <label>Numero di persone</label>
-          <md-input v-model="newPeople.quantity" type="number" required></md-input>
-        </md-field>
-        <md-field :class="{'md-invalid': noValidForm && !newPeople.days}">
+        </md-autocomplete>
+        <md-autocomplete v-model="newPeople.days" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
           <label>Giorni di presenza</label>
-          <md-input v-model="newPeople.days" type="number" required></md-input>
-        </md-field>
+        </md-autocomplete>
       <md-dialog-actions>
         <md-button @click="showPeopleDialog = false">Annulla</md-button>
         <md-button class="md-primary" @click="addPeople">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
@@ -204,7 +202,8 @@ export default {
       },
       isEditing: null,
       noValidForm: false,
-      showSnackbar: false
+      showSnackbar: false,
+      autocompleteOptions: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
     }
   },
   computed: {
@@ -261,6 +260,10 @@ export default {
       } else {
         return false
       }
+    },
+    reverseAutocompleteOptions() {
+      let vm = this;
+      return vm.autocompleteOptions.reverse();
     }
   },
   methods: {
@@ -457,6 +460,9 @@ h2 {
 }
 .md-list-item-text {
   white-space: normal!important;
+}
+.md-menu-content {
+  z-index: 9999!important;
 }
 .head-cell {
   color: var(--md-theme-default-text-accent-on-background, rgba(0,0,0,0.54));
