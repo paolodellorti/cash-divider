@@ -117,7 +117,7 @@
         <md-autocomplete v-model="newPeople.quantity" type="number" :md-dense="true" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
           <label>Numero di persone</label>
         </md-autocomplete>
-        <md-autocomplete v-model="newPeople.days" type="number" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
+        <md-autocomplete v-model="newPeople.days" type="number" :md-dense="true" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && !newPeople.quantity}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
       <md-dialog-actions>
