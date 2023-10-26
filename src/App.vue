@@ -401,6 +401,9 @@ export default {
 body {
   font-size: 16px;
 }
+h1 {
+  line-height: 30px;
+}
 h1, h3 {
   text-align: center;
 }
