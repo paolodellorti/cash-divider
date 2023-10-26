@@ -388,10 +388,9 @@ h1, h3 {
 }
 h2 {
   margin-top: 25px;
-  margin-bottom: 1px;
+  margin-bottom: 4px;
 }
 .page {
-  font-family: Arial, sans-serif;
   margin: 10px auto;
   max-width: 750px;
   padding: 0 10px;
