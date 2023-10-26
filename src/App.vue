@@ -1,186 +1,209 @@
 <template>
   <div class="page">
-    <div class="main-cont">
-      <h1>CASH DIVIDER</h1>
-      <md-table>
-        <md-table-row>
-          <md-table-head md-numeric>ID</md-table-head>
-          <md-table-head>Name</md-table-head>
-          <md-table-head>Email</md-table-head>
-          <md-table-head>Gender</md-table-head>
-          <md-table-head>Job Title</md-table-head>
-        </md-table-row>
+    <h1>Divisore contanti pocket money</h1>
+    <md-table>
+      <md-table-row>
+        <md-table-head>taglia</md-table-head>
+        <md-table-head>50 €</md-table-head>
+        <md-table-head>20 €</md-table-head>
+        <md-table-head>10 €</md-table-head>
+        <md-table-head>5 €</md-table-head>
+        <md-table-head>2 €</md-table-head>
+        <md-table-head>1 €</md-table-head>
+        <md-table-head>0,50 €</md-table-head>
+      </md-table-row>
 
-        <md-table-row>
-          <md-table-cell md-numeric>1</md-table-cell>
-          <md-table-cell>Shawna Dubbin</md-table-cell>
-          <md-table-cell>sdubbin0@geocities.com</md-table-cell>
-          <md-table-cell>Male</md-table-cell>
-          <md-table-cell>Assistant Media Planner</md-table-cell>
-        </md-table-row>
+      <md-table-row>
+        <md-table-cell class="head-cell">quantità</md-table-cell>
+        <md-table-cell>{{ cashDivision[50] }}</md-table-cell>
+        <md-table-cell>{{ cashDivision[20] }}</md-table-cell>
+        <md-table-cell>{{ cashDivision[10] }}</md-table-cell>
+        <md-table-cell>{{ cashDivision[5] }}</md-table-cell>
+        <md-table-cell>{{ cashDivision[2] }}</md-table-cell>
+        <md-table-cell>{{ cashDivision[1] }}</md-table-cell>
+        <md-table-cell>{{ cashDivision[0.5] }}</md-table-cell>
+      </md-table-row>
 
-        <md-table-row>
-          <md-table-cell md-numeric>2</md-table-cell>
-          <md-table-cell>Odette Demageard</md-table-cell>
-          <md-table-cell>odemageard1@spotify.com</md-table-cell>
-          <md-table-cell>Female</md-table-cell>
-          <md-table-cell>Account Coordinator</md-table-cell>
-        </md-table-row>
-
-        <md-table-row>
-          <md-table-cell md-numeric>3</md-table-cell>
-          <md-table-cell>Vera Taleworth</md-table-cell>
-          <md-table-cell>vtaleworth2@google.ca</md-table-cell>
-          <md-table-cell>Male</md-table-cell>
-          <md-table-cell>Community Outreach Specialist</md-table-cell>
-        </md-table-row>
-      </md-table>
-      <md-list>
-        <div
-        v-for="(quantity, days) in people"
+    </md-table>
+    <h3>Totale {{ cashTotal }}</h3>
+    <h2>Persone</h2>
+    <md-list>
+      <div
+        v-for="(quantity, days, index) in people"
         :key="days + 'people'"
+      >
+        <md-list-item>
+          <md-icon>{{ quantity == 1 ? 'person' : 'groups' }}</md-icon>
+          <span class="md-list-item-text">
+            <span>
+              <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
+            </span>
+          </span>
+          <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity)">
+            <md-icon class="md-primary">edit_square</md-icon>
+            <md-tooltip md-direction="top">Modifica</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button md-list-action" @click=" deletingPeople = days; showDeleteDialog = true">
+            <md-icon class="md-accent">delete</md-icon>
+            <md-tooltip md-direction="top">Elimina</md-tooltip>
+          </md-button>
+        </md-list-item>
+        <md-divider v-if="index + 1 < Object.keys(people).length"></md-divider>
+      </div>
+      <div
+        v-if="!Object.keys(people).length"
+        class="no-data"
+      >
+        Nessun dato
+      </div>
+      <md-button class="md-raised md-primary" @click="showPeopleDialog = true">
+        <md-icon class="md-primary">add</md-icon> Aggiungi persone
+      </md-button>
+    </md-list>
+    <h2>Famiglie</h2>
+    <md-list>
+      <div
+        v-for="(familyData, members, index) in families"
+        :key="members + 'people'"
+      >
+        <div
+          v-for="(quantity, days) in familyData"
+          :key="quantity + 'people'"
         >
           <md-list-item>
             <md-icon>family_restroom</md-icon>
             <span class="md-list-item-text">
-              <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <b>{{ days }}</b> giorni di presenza
+              <span>
+                <b>{{ quantity }}</b> famigli{{ quantity == 1 ? 'a' : 'e' }} di <b>{{ members }}</b> membri con <b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
+              </span>
             </span>
-            <md-button class="md-icon-button md-list-action">
-              <md-icon class="md-primary">chat_bubble</md-icon>
+            <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity, members)">
+              <md-icon class="md-primary">edit_square</md-icon>
+              <md-tooltip md-direction="top">Modifica</md-tooltip>
             </md-button>
-            <md-button class="md-icon-button md-list-action">
-              <md-icon class="md-primary">chat_bubble</md-icon>
+            <md-button class="md-icon-button md-list-action" @click="deletingFamilies = [members, days]; showDeleteDialog = true;">
+              <md-icon class="md-accent">delete</md-icon>
+              <md-tooltip md-direction="top">Elimina</md-tooltip>
             </md-button>
           </md-list-item>
-          <md-divider class="md-inset"></md-divider>
+          <md-divider v-if="index + 1 < Object.keys(families).length"></md-divider>
         </div>
-      </md-list>
-      <table class="result-container">
-        <tr>
-          <td>taglia</td>
-          <td
-            v-for="(cash, index) in [50,20,10,5,2,1,0.5]"
-            :key="cash"
-            :class="{ first: index % 2 == 1}"
-          >
-            {{ cash }} €
-          </td>
-        </tr>
-        <tr>
-          <td>quantità</td>
-          <td
-            v-for="(cash, index) in [50,20,10,5,2,1,0.5]"
-            :key="cash"
-            :class="{ first: index % 2 != 1}"
-          >
-          {{ cashDivision[cash] }}
-          </td>
-        </tr>
-      </table>
-      <h2>Persone</h2>
-      <InfoCards :people="people" />
-      <div class="add-button"  @click="showPeopleDialog = true">
-        + Aggiungi persone
       </div>
-      <h2>Famiglie</h2>
-      <InfoCards :families="families" />
-      <div class="add-button"  @click="showFamiliesDialog = true">
-        + Aggiungi famiglie
+      <div
+        v-if="!Object.keys(families).length"
+        class="no-data"
+      >
+        Nessun dato
       </div>
+      <md-button class="md-raised md-primary" @click="showFamiliesDialog = true">
+        <md-icon class="md-primary">add</md-icon> Aggiungi famiglie
+      </md-button>
+    </md-list>
+    <div class="reset-button-cont">
+      <md-button class="md-raised md-accent" :disabled="!Object.keys(people).length && !Object.keys(families).length" @click="showResetDialog = true">
+        <md-icon class="md-primary">restart_alt</md-icon> Resetta
+      </md-button>
     </div>
-    <md-dialog :md-active.sync="showFamiliesDialog">
-      <md-dialog-title>Preferences</md-dialog-title>
 
-      <md-tabs md-dynamic-height>
-        <md-tab md-label="General">
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-        </md-tab>
-
-        <md-tab md-label="Activity">
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-        </md-tab>
-
-        <md-tab md-label="Account">
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ullam mollitia dolorum dolores quae commodi impedit possimus qui, atque at voluptates cupiditate. Neque quae culpa suscipit praesentium inventore ducimus ipsa aut.</p>
-        </md-tab>
-      </md-tabs>
-
+    <div class="footer">
+      Cash Divider by Paolo Dell'Orti
+    </div>
+    <md-dialog :md-active.sync="showPeopleDialog" @md-closed="onCloseDialog(true)">
+      <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
+        <md-field :class="{'md-invalid': noValidForm && !newPeople.quantity}">
+          <label>Numero di persone</label>
+          <md-input v-model="newPeople.quantity" type="number" required></md-input>
+        </md-field>
+        <md-field :class="{'md-invalid': noValidForm && !newPeople.days}">
+          <label>Giorni di presenza</label>
+          <md-input v-model="newPeople.days" type="number" required></md-input>
+        </md-field>
       <md-dialog-actions>
-        <md-button class="md-primary" @click="showDialog = false">Close</md-button>
-        <md-button class="md-primary" @click="showDialog = false">Save</md-button>
+        <md-button @click="showPeopleDialog = false">Annulla</md-button>
+        <md-button class="md-primary" @click="addPeople">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
       </md-dialog-actions>
     </md-dialog>
-    <!-- <el-dialog
-      title="Aggiungi persone"
-      :visible="showPeopleDialog"
-      width="55%"
-      @close="nullInputs"
-    >
-      <div class="input-cont">Numero persone <input type="number" v-model="newPeople.quantity" /></div>
-      <div class="input-cont">Giorni di presenza <input type="number" v-model="newPeople.days" /></div>
-      <div class="buttons-cont">
-        <div class="butt cancel"><font-awesome-icon icon="xmark" @click="showPeopleDialog = false" /> Annulla</div>
-        <div class="butt confirm"><font-awesome-icon icon="check" @click="addPeople" /> Conferma</div>
-      </div>
-    </el-dialog>
-    <el-dialog
-      title="Aggiungi famiglie"
-      :visible="showFamiliesDialog"
-      width="55%"
-      @close="nullInputs"
-    >
-      <div class="input-cont">Numero famiglie <input v-model="newFamilies.quantity" type="number" /></div>
-      <div class="input-cont">Numero membri <input v-model="newFamilies.capacity" type="number" /></div>
-      <div class="input-cont">Giorni di presenza <input v-model="newFamilies.days" type="number" /></div>
-      <div class="buttons-cont">
-        <div class="butt cancel"><font-awesome-icon icon="xmark" @click="showFamiliesDialog = false" /> Annulla</div>
-        <div class="butt confirm"><font-awesome-icon icon="check" @click="addFamilies" /> Conferma</div>
-      </div>
-    </el-dialog> -->
+    <md-dialog :md-active.sync="showFamiliesDialog" @md-closed="onCloseDialog(false)">
+      <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi famiglie' }}</md-dialog-title>
+        <md-field :class="{'md-invalid': noValidForm && !newFamilies.quantity}">
+          <label>Numero di famiglie</label>
+          <md-input v-model="newFamilies.quantity" type="number" required></md-input>
+        </md-field>
+        <md-field :class="{'md-invalid': noValidForm && !newFamilies.members}">
+          <label>Numero di membri per famiglia</label>
+          <md-input v-model="newFamilies.members" type="number" required></md-input>
+        </md-field>
+        <md-field :class="{'md-invalid': noValidForm && !newFamilies.days}">
+          <label>Giorni di presenza</label>
+          <md-input v-model="newFamilies.days" type="number" required></md-input>
+        </md-field>
+      <md-dialog-actions>
+        <md-button @click="showFamiliesDialog = false">Annulla</md-button>
+        <md-button class="md-primary" @click="addFamilies">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <md-dialog-confirm
+      class="delete-dialog"
+      :md-active.sync="showDeleteDialog"
+      md-title="Vuoi veramente eliminare il dato?"
+      :md-content="deletingDataSentence"
+      md-confirm-text="Elimina"
+      md-cancel-text="Annulla"
+      @md-cancel="showDeleteDialog = false; deletingPeople = null; deletingFamilies = null"
+      @md-confirm="deleteData"
+    />
+    <md-dialog-confirm
+      class="delete-dialog"
+      :md-active.sync="showResetDialog"
+      md-title="Vuoi veramente resettare tutti i dati?"
+      md-content="Perderai tutti i dati visibili, anche quelli salvati nel tuo browser."
+      md-confirm-text="Resetta"
+      md-cancel-text="Annulla"
+      @md-cancel="showResetDialog = false"
+      @md-confirm="resetAll"
+    />
+    <md-snackbar md-position="center" :md-duration="2000" :md-active.sync="showSnackbar" md-persistent>
+      <span>Compila il form correttamente per continuare</span>
+      <md-button class="md-accent" @click="showSnackbar = false">
+        <md-icon class="md-accent">close</md-icon>
+      </md-button>
+    </md-snackbar>
   </div>
 </template>
 
 <script>
-import InfoCards from "./components/InfoCards";
 export default {
   name: 'CashDivider',
-  components: {
-    InfoCards
-  },
   data() {
     return {
       showPeopleDialog: false,
       showFamiliesDialog: false,
-      people: {
-        30: 1,
-        40: 1,
-      },
-      families: {
-        4: {
-          30: 1
-        },
-      },
+      showDeleteDialog: false,
+      showResetDialog: false,
+      deletingPeople: null,
+      deletingFamilies: null,
+      people: {},
+      families: {},
+      trigger: 0,
       newPeople: {
         quantity: null,
         days: null
       },
       newFamilies: {
         quantity: null,
-        capacity: null,
+        members: null,
         days: null
-      }
+      },
+      isEditing: null,
+      noValidForm: false,
+      showSnackbar: false
     }
   },
   computed: {
     cashDivision() {
       let vm = this;
+      vm.trigger++;
+      localStorage.setItem('cashDivisor', JSON.stringify([vm.people, vm.families]));
       let result = {
         50: 0,
         20: 0,
@@ -191,36 +214,151 @@ export default {
         0.5: 0
       }
       result = vm.calculateCashDivision(vm.people, result);
-      for (const [familyCapacity, family] of Object.entries(vm.families)) {
-        result = vm.calculateCashDivision(family, result, familyCapacity);
+      for (const [familymembers, family] of Object.entries(vm.families)) {
+        result = vm.calculateCashDivision(family, result, familymembers);
       }
       return result;
+    },
+    cashTotal() {
+      let vm = this;
+      let result = 0;
+      for (const [cash, quantity] of Object.entries(vm.cashDivision)) {
+        result += cash * quantity;
+      }
+      const formatter = new Intl.NumberFormat('it-IT', {
+        style: 'currency',
+        currency: 'EUR'
+      });
+      return formatter.format(result);
+    },
+    deletingDataSentence() {
+      let vm = this;
+      if (vm.deletingPeople) {
+        return `
+          <b>${vm.people[vm.deletingPeople]}</b> person${vm.people[vm.deletingPeople] == 1 ? 'a' : 'e'}
+          con <b>${vm.deletingPeople}</b> giorn${vm.deletingPeople == 1 ? 'o' : 'i'} di presenza
+        `
+      } else if (vm.deletingFamilies) {
+        return `
+          <b>${vm.families[vm.deletingFamilies[0]][vm.deletingFamilies[1]]}</b> famigli${vm.families[vm.deletingFamilies[0]][vm.deletingFamilies[1]] == 1 ? 'a' : 'e'}
+          di <b>${vm.deletingFamilies[0]}</b> membri
+          con <b>${vm.deletingFamilies[1]}</b> giorn${vm.deletingFamilies[1] == 1 ? 'o' : 'i'} di presenza
+        `
+      }
+      return '1 famiglia da 3 membri con 4 giorni di presenza'
     }
   },
   methods: {
     addPeople() {
       let vm = this;
-      if (vm.newPeople.quantity && vm.newPeople.days) {
-        if (vm.people[vm.newPeople.days]) {
-          vm.people[vm.newPeople.days] += vm.newPeople.quantity;
-        } else {
-          vm.people[vm.newPeople.days] = vm.newPeople.quantity;
+      if (!vm.newPeople.quantity || !vm.newPeople.days) {
+        vm.noValidForm = true;
+        vm.showSnackbar = true;
+      } else {
+        vm.trigger ++;
+        if (vm.isEditing) {
+          delete vm.people[vm.isEditing];
         }
+        if (vm.people[vm.newPeople.days]) {
+          vm.people[vm.newPeople.days] += parseInt(vm.newPeople.quantity);
+        } else {
+          vm.people[vm.newPeople.days] = parseInt(vm.newPeople.quantity);
+        }
+        vm.newPeople = {
+          quantity: null,
+          days: null
+        };
+        vm.noValidForm = false;
+        vm.showPeopleDialog = false;
       }
     },
     addFamilies() {
       let vm = this;
-      if (vm.newFamilies.quantity && vm.newFamilies.days && vm.newFamilies.capacity) {
-        if (vm.families[vm.newFamilies.capacity] && vm.families[vm.newFamilies.capacity][vm.newFamilies.days]) {
-          vm.families[vm.newFamilies.capacity][vm.newFamilies.days] += vm.newFamilies.quantity;
-        } else {
-          vm.families[vm.newFamilies.capacity][vm.newFamilies.days] = vm.newFamilies.quantity;
+      if (!vm.newFamilies.quantity || !vm.newFamilies.days || !vm.newFamilies.members) {
+        vm.noValidForm = true;
+        vm.showSnackbar = true;
+      } else {
+        vm.trigger ++;
+        if (vm.isEditing) {
+          delete vm.families[vm.isEditing[0]][vm.isEditing[1]];
         }
+        if (vm.families[vm.newFamilies.members] && vm.families[vm.newFamilies.members][vm.newFamilies.days]) {
+          vm.families[vm.newFamilies.members][vm.newFamilies.days] += parseInt(vm.newFamilies.quantity);
+        } else {
+          vm.families[vm.newFamilies.members] = {
+            ...vm.families[vm.newFamilies.members],
+            [vm.newFamilies.days]: parseInt(vm.newFamilies.quantity)
+          };
+        }
+        vm.newFamilies = {
+          quantity: null,
+          members: null,
+          days: null
+        };
+        vm.noValidForm = false;
+        vm.showFamiliesDialog = false;
       }
     },
-    calculateCashDivision(object, result, familyCapacity = 1) {
+    deleteData() {
+      let vm = this;
+      vm.trigger ++;
+      if (vm.deletingPeople) {
+        delete vm.people[vm.deletingPeople];
+      } else if (vm.deletingFamilies) {
+        delete vm.families[vm.deletingFamilies[0]][vm.deletingFamilies[1]];
+        if (!Object.keys(vm.families[vm.deletingFamilies[0]]).length) {
+          delete vm.families[vm.deletingFamilies[0]];
+        }
+      }
+      vm.deletingPeople = null;
+      vm.deletingFamilies = null
+      vm.showDeleteDialog = false;
+    },
+    resetAll() {
+      let vm = this;
+      vm.trigger ++;
+      vm.people = {};
+      vm.families = {};
+      vm.showResetDialog = false;
+    },
+    openEditDialog(days, quantity, members = null) {
+      let vm = this;
+      vm.isEditing = members ? [members, days] : days;
+      if (!members) {
+        vm.newPeople = {
+          days: days,
+          quantity: quantity
+        };
+        vm.showPeopleDialog = true;
+      } else {
+        vm.newFamilies = {
+          days: days,
+          quantity: quantity,
+          members: members
+        };
+        vm.showFamiliesDialog = true;
+      }
+    },
+    onCloseDialog(isPeopleDialog) {
+      let vm = this;
+      vm.noValidForm = false;
+      if (vm.isEditing && isPeopleDialog) {
+        vm.newPeople = {
+          days: null,
+          quantity: null,
+        };
+      } else if (vm.isEditing) {
+        vm.newFamilies = {
+          days: null,
+          quantity: null,
+          members: null
+        };
+      }
+      vm.isEditing = null;
+    },
+    calculateCashDivision(object, result, familymembers = 1) {
       for (const [days, quantity] of Object.entries(object)) {
-        let total = days * 2.5 * familyCapacity;
+        let total = days * 2.5 * familymembers;
         for (const cashSize of [50, 20, 10, 5, 2, 1, 0.5]) {
           if (total / cashSize >= 1) {
             result[cashSize] += parseInt(total / cashSize) * quantity;
@@ -229,100 +367,95 @@ export default {
         }
       }
       return result;
-    },
-    nullInputs() {
-      let vm = this;
-      vm.newPeople = {
-        quantity: null,
-        days: null
-      };
-      vm.newFamilies = {
-        quantity: null,
-        capacity: null,
-        days: null
-      };
+    }
+  },
+  beforeMount() {
+    let vm = this;
+    if (localStorage.cashDivisor) {
+      vm.people = JSON.parse(localStorage.cashDivisor)[0];
+      vm.families = JSON.parse(localStorage.cashDivisor)[1];
     }
   }
 }
 </script>
 
 <style>
-  h1 {
-    text-align: center;
-  }
-  .page {
-    font-family: Arial, sans-serif;
-    padding: 20px 50px;
-    background: #ffecd7;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-  }
-  .main-cont {
-    width: 100%;
-    max-width: 750px;
-  }
-  .result-container {
-    width: 100%;
-    margin-bottom: 20px;
-    text-align: center;
-    border-spacing: 0;
-  }
-  .result-container td {
-    background: #bcfff5;
-    border: none;
-  }
-  .result-container td.first {
-    background: #ffefb7;
-  }
-  .add-button {
-    width: 100%;
-    margin-bottom: 20px;
-    background: #837262;
-    color: #fff;
-    height: 42px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 1px 2px rgba(0,0,0,.12);
-  }
-  input {
-    height: 25px;
-    width: 60px;
-    text-align: center;
-  }
-  .input-cont {
-    width: 50%;
-    min-width: 210px;
-    max-width: 300px;
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: space-between;
-  }
-  .buttons-cont {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-  }
-  .butt {
-    padding: 10px;
-    border-radius: 4px;
-    margin-left: 5px;
-    color: #fff;
-    cursor: pointer;
-  }
-  .cancel {
-    background: #837262;
-  }
-  .confirm {
-    background: #0bbf47;
-  }
+body {
+  font-size: 16px;
+}
+h1, h3 {
+  text-align: center;
+}
+h2 {
+  margin-top: 25px;
+  margin-bottom: 1px;
+}
+.page {
+  font-family: Arial, sans-serif;
+  margin: 10px auto;
+  max-width: 750px;
+  padding: 0 10px;
+}
+.result-container {
+  width: 100%;
+  margin-bottom: 20px;
+  text-align: center;
+  border-spacing: 0;
+}
+.result-container td {
+  background: #bcfff5;
+  border: none;
+}
+.result-container td.first {
+  background: #ffefb7;
+}
+.input-cont {
+  width: 50%;
+  min-width: 210px;
+  max-width: 300px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+.md-dialog-container {
+  padding: 0 20px;
+}
+.md-list-item-text :nth-child(2), .md-list-item-text :nth-child(3) {
+  font-size: 16px!important;
+}
+.no-data {
+  text-align: center;
+  font-size: 16px;
+  font-style: italic;
+  color: #9b9b9b;
+  margin: 10px 0;
+}
+.footer {
+  padding: 40px 0 15px 0;
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: #9b9b9b;
+  font-style: italic;
+}
+.delete-dialog .md-button.md-theme-default.md-primary {
+  color: #ff5252!important;
+}
+.md-list-item-text {
+  white-space: normal!important;
+}
+.head-cell {
+  color: var(--md-theme-default-text-accent-on-background, rgba(0,0,0,0.54));
+  font-weight: bold;
+}
+.reset-button-cont {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 30px 0 0 0;
+}
+.reset-button-cont .md-disabled .md-icon {
+  color: var(--md-theme-default-disabled, rgba(0,0,0,0.26))!important;
+}
 </style>
