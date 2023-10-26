@@ -106,7 +106,7 @@
     </div>
 
     <div class="footer">
-      Pocket Money Manager v1.01 by Paolo Dell'Orti
+      Pocket Money Manager v1.01<br>by Paolo Dell'Orti
     </div>
     <md-dialog
       :md-active.sync="showPeopleDialog"
