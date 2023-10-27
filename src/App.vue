@@ -1,7 +1,7 @@
 <template>
-  <div class="page">
+  <div class="page" :class="{ 'is-mobile': isMobile}">
     <h1>Pocket Money Manager</h1>
-    <md-table>
+    <md-table :md-card="true">
       <md-table-row>
         <md-table-head>taglia</md-table-head>
         <md-table-head>50 €</md-table-head>
@@ -9,7 +9,6 @@
         <md-table-head>10 €</md-table-head>
         <md-table-head>5 €</md-table-head>
         <md-table-head>2 €</md-table-head>
-        <md-table-head>1 €</md-table-head>
         <md-table-head>0,50 €</md-table-head>
       </md-table-row>
 
@@ -20,7 +19,6 @@
         <md-table-cell>{{ cashDivision[10] }}</md-table-cell>
         <md-table-cell>{{ cashDivision[5] }}</md-table-cell>
         <md-table-cell>{{ cashDivision[2] }}</md-table-cell>
-        <md-table-cell>{{ cashDivision[1] }}</md-table-cell>
         <md-table-cell>{{ cashDivision[0.5] }}</md-table-cell>
       </md-table-row>
 
@@ -99,6 +97,7 @@
         <md-icon class="md-primary">add</md-icon> Aggiungi famiglie
       </md-button>
     </md-list>
+
     <div class="reset-button-cont">
       <md-button class="md-raised md-accent" :disabled="!Object.keys(people).length && !Object.keys(families).length" @click="showResetDialog = true">
         <md-icon class="md-primary">restart_alt</md-icon> Resetta
@@ -106,8 +105,9 @@
     </div>
 
     <div class="footer">
-      Pocket Money Manager v1.01<br>by Paolo Dell'Orti
+      Pocket Money Manager v1.02<br>by Paolo Dell'Orti
     </div>
+
     <md-dialog
       :md-active.sync="showPeopleDialog"
       @md-closed="onCloseDialog(true)"
@@ -118,7 +118,7 @@
           <label>Numero di persone</label>
           <md-input v-model="newPeople.quantity" type="number" :min="1" required></md-input>
         </md-field>
-        <md-autocomplete v-model="newPeople.days" type="number" :min="1" :md-dense="true" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && newPeople.days < 1}" required>
+        <md-autocomplete v-model="newPeople.days" type="number" :min="1" :md-dense="true" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newPeople.days < 1}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
       <md-dialog-actions>
@@ -140,7 +140,7 @@
           <label>Numero di membri per famiglia</label>
           <md-input v-model="newFamilies.members" type="number" required></md-input>
         </md-field>
-        <md-autocomplete v-model="newFamilies.days" type="number" :min="1" :md-dense="true" :md-options="reverseAutocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
+        <md-autocomplete v-model="newFamilies.days" type="number" :min="1" :md-dense="true" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
       <md-dialog-actions>
@@ -178,19 +178,14 @@
 </template>
 
 <script>
+import { useWindowSize } from 'vue-window-size';
+
 export default {
   name: 'CashDivider',
   data() {
     return {
-      showPeopleDialog: false,
-      showFamiliesDialog: false,
-      showDeleteDialog: false,
-      showResetDialog: false,
-      deletingPeople: null,
-      deletingFamilies: null,
       people: {},
       families: {},
-      trigger: 0,
       newPeople: {
         quantity: null,
         days: null
@@ -201,9 +196,17 @@ export default {
         days: null
       },
       isEditing: null,
+      showPeopleDialog: false,
+      showFamiliesDialog: false,
+      showDeleteDialog: false,
+      showResetDialog: false,
+      deletingPeople: null,
+      deletingFamilies: null,
+      windowWidth: 0,
+      trigger: 0,
       noValidForm: false,
       showSnackbar: false,
-      autocompleteOptions: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+      autocompleteOptions: [31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
     }
   },
   computed: {
@@ -217,7 +220,6 @@ export default {
         10: 0,
         5: 0,
         2: 0,
-        1: 0,
         0.5: 0
       }
       result = vm.calculateCashDivision(vm.people, result);
@@ -255,16 +257,13 @@ export default {
       return '1 famiglia da 3 membri con 4 giorni di presenza'
     },
     isMobile() {
-      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || useWindowSize().width.value < 768) {
+        console.log(useWindowSize().width.value);
         return true
       } else {
         return false
       }
     },
-    reverseAutocompleteOptions() {
-      let vm = this;
-      return vm.autocompleteOptions.reverse();
-    }
   },
   methods: {
     addPeople() {
@@ -393,6 +392,14 @@ export default {
       vm.people = JSON.parse(localStorage.cashDivisor)[0];
       vm.families = JSON.parse(localStorage.cashDivisor)[1];
     }
+  },
+  created() {
+    let vm = this;
+    window.addEventListener("resize", () => vm.windowWidth = window.innerWidth);
+  },
+  destroyed() {
+    let vm = this;
+    window.removeEventListener("resize", () => vm.windowWidth = window.innerWidth);
   }
 }
 </script>
@@ -480,5 +487,13 @@ h2 {
 }
 .reset-button-cont .md-disabled .md-icon {
   color: var(--md-theme-default-disabled, rgba(0,0,0,0.26))!important;
+}
+.md-table-head, .md-table-cell {
+  text-align: center!important;
+}
+.is-mobile .md-table-head-label,
+.is-mobile .md-table-cell-container {
+  padding-right: 12px;
+  padding-left: 12px;
 }
 </style>
