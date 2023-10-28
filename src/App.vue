@@ -32,16 +32,16 @@
           <md-icon>{{ quantity == 1 ? 'person' : 'groups' }}</md-icon>
           <span class="md-list-item-text">
             <span>
-              <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <br v-if="isMobile"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
+              <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <br v-if="isMobileWidth"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
             </span>
           </span>
           <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity)">
             <md-icon class="md-primary">edit_square</md-icon>
-            <md-tooltip v-if="!isMobile" md-direction="top">Modifica</md-tooltip>
+            <md-tooltip v-if="!isMobileDevice" md-direction="top">Modifica</md-tooltip>
           </md-button>
           <md-button class="md-icon-button md-list-action" @click=" deletingPeople = days; showDeleteDialog = true">
             <md-icon class="md-accent">delete</md-icon>
-            <md-tooltip v-if="!isMobile" md-direction="top">Elimina</md-tooltip>
+            <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
           </md-button>
         </md-list-item>
         <md-divider v-if="index + 1 < Object.keys(people).length"></md-divider>
@@ -70,16 +70,16 @@
             <md-icon>family_restroom</md-icon>
             <span class="md-list-item-text">
               <span>
-                <b>{{ quantity }}</b> famigli{{ quantity == 1 ? 'a' : 'e' }} di <br v-if="isMobile"><b>{{ members }}</b> membri con <br v-if="isMobile"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
+                <b>{{ quantity }}</b> famigli{{ quantity == 1 ? 'a' : 'e' }} di <br v-if="isMobileWidth"><b>{{ members }}</b> membri con <br v-if="isMobileWidth"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
               </span>
             </span>
             <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity, members)">
               <md-icon class="md-primary">edit_square</md-icon>
-              <md-tooltip v-if="!isMobile" md-direction="top">Modifica</md-tooltip>
+              <md-tooltip v-if="!isMobileDevice" md-direction="top">Modifica</md-tooltip>
             </md-button>
             <md-button class="md-icon-button md-list-action" @click="deletingFamilies = [members, days]; showDeleteDialog = true;">
               <md-icon class="md-accent">delete</md-icon>
-              <md-tooltip v-if="!isMobile" md-direction="top">Elimina</md-tooltip>
+              <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
             </md-button>
           </md-list-item>
           <md-divider v-if="index + 1 < Object.keys(families).length"></md-divider>
