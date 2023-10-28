@@ -117,7 +117,7 @@
           <label>Numero di persone</label>
           <md-input v-model="newPeople.quantity" type="number" :min="1" required></md-input>
         </md-field>
-        <md-autocomplete v-if="!isMobileDevice" v-model="newPeople.days" type="number" :min="1" :md-dense="true" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newPeople.days < 1}" required>
+        <md-autocomplete v-if="!isMobileDevice" v-model="newPeople.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newPeople.days < 1}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
         <md-field v-else :class="{'md-invalid': noValidForm && newPeople.days < 1}">
@@ -144,7 +144,7 @@
           <label>Numero di membri per famiglia</label>
           <md-input v-model="newFamilies.members" type="number" required></md-input>
         </md-field>
-        <md-autocomplete v-if="!isMobileDevice" v-model="newFamilies.days" type="number" :min="1" :md-dense="true" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
+        <md-autocomplete v-if="!isMobileDevice" v-model="newFamilies.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
         <md-field v-else :class="{'md-invalid': noValidForm && newFamilies.days < 1}">
@@ -282,7 +282,7 @@ export default {
         if (vm.isEditing) {
           delete vm.people[vm.isEditing];
         }
-        if (vm.people[vm.newPeople.days]) {
+        if (vm.people[parseInt(vm.newPeople.days)]) {
           vm.people[parseInt(vm.newPeople.days)] += parseInt(vm.newPeople.quantity);
         } else {
           vm.people[parseInt(vm.newPeople.days)] = parseInt(vm.newPeople.quantity);
