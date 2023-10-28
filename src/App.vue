@@ -3,7 +3,6 @@
     <h1>Pocket Money Manager</h1>
     <md-table :md-card="true">
       <md-table-row>
-        <md-table-head>taglia</md-table-head>
         <md-table-head>50 €</md-table-head>
         <md-table-head>20 €</md-table-head>
         <md-table-head>10 €</md-table-head>
@@ -13,7 +12,6 @@
       </md-table-row>
 
       <md-table-row>
-        <md-table-cell class="head-cell">quantità</md-table-cell>
         <md-table-cell>{{ cashDivision[50] }}</md-table-cell>
         <md-table-cell>{{ cashDivision[20] }}</md-table-cell>
         <md-table-cell>{{ cashDivision[10] }}</md-table-cell>
@@ -105,7 +103,7 @@
     </div>
 
     <div class="footer">
-      Pocket Money Manager v1.02<br>by Paolo Dell'Orti
+      Pocket Money Manager v1.03<br>by Paolo Dell'Orti
     </div>
 
     <md-dialog
@@ -473,10 +471,6 @@ h2 {
 }
 .md-menu-content {
   z-index: 9999!important;
-}
-.head-cell {
-  color: var(--md-theme-default-text-accent-on-background, rgba(0,0,0,0.54));
-  font-weight: bold;
 }
 .reset-button-cont {
   width: 100%;
