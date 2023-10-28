@@ -283,9 +283,9 @@ export default {
           delete vm.people[vm.isEditing];
         }
         if (vm.people[vm.newPeople.days]) {
-          vm.people[vm.newPeople.days] += parseInt(vm.newPeople.quantity);
+          vm.people[parseInt(vm.newPeople.days)] += parseInt(vm.newPeople.quantity);
         } else {
-          vm.people[vm.newPeople.days] = parseInt(vm.newPeople.quantity);
+          vm.people[parseInt(vm.newPeople.days)] = parseInt(vm.newPeople.quantity);
         }
         vm.newPeople = {
           quantity: null,
@@ -305,12 +305,12 @@ export default {
         if (vm.isEditing) {
           delete vm.families[vm.isEditing[0]][vm.isEditing[1]];
         }
-        if (vm.families[vm.newFamilies.members] && vm.families[vm.newFamilies.members][vm.newFamilies.days]) {
-          vm.families[vm.newFamilies.members][vm.newFamilies.days] += parseInt(vm.newFamilies.quantity);
+        if (vm.families[parseInt(vm.newFamilies.members)] && vm.families[parseInt(vm.newFamilies.members)][parseInt(vm.newFamilies.days)]) {
+          vm.families[parseInt(vm.newFamilies.members)][parseInt(vm.newFamilies.days)] += parseInt(vm.newFamilies.quantity);
         } else {
-          vm.families[vm.newFamilies.members] = {
-            ...vm.families[vm.newFamilies.members],
-            [vm.newFamilies.days]: parseInt(vm.newFamilies.quantity)
+          vm.families[parseInt(vm.newFamilies.members)] = {
+            ...vm.families[parseInt(vm.newFamilies.members)],
+            [parseInt(vm.newFamilies.days)]: parseInt(vm.newFamilies.quantity)
           };
         }
         vm.newFamilies = {
