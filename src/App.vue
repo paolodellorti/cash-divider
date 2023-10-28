@@ -1,5 +1,5 @@
 <template>
-  <div class="page" :class="{ 'is-mobile': isMobile}">
+  <div class="page" :class="{'is-mobile-width': isMobileWidth}">
     <h1>Pocket Money Manager</h1>
     <md-table :md-card="true">
       <md-table-row>
@@ -107,9 +107,10 @@
     </div>
 
     <md-dialog
+      :class="{'is-mobile-device': isMobileDevice}"
       :md-active.sync="showPeopleDialog"
-      @md-closed="onCloseDialog(true)"
       :md-fullscreen="false"
+      @md-closed="onCloseDialog(true)"
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
         <md-field :class="{'md-invalid': noValidForm && newPeople.quantity < 1}">
@@ -125,6 +126,7 @@
       </md-dialog-actions>
     </md-dialog>
     <md-dialog
+      :class="{'is-mobile-device': isMobileDevice}"
       :md-active.sync="showFamiliesDialog"
       :md-fullscreen="false"
       @md-closed="onCloseDialog(false)"
@@ -254,13 +256,11 @@ export default {
       }
       return '1 famiglia da 3 membri con 4 giorni di presenza'
     },
-    isMobile() {
-      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || useWindowSize().width.value < 768) {
-        console.log(useWindowSize().width.value);
-        return true
-      } else {
-        return false
-      }
+    isMobileDevice() {
+      return !!(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    },
+    isMobileWidth() {
+      return !!useWindowSize().width.value < 768;
     },
   },
   methods: {
@@ -485,9 +485,16 @@ h2 {
 .md-table-head, .md-table-cell {
   text-align: center!important;
 }
-.is-mobile .md-table-head-label,
-.is-mobile .md-table-cell-container {
+.is-mobile-width .md-table-head-label,
+.is-mobile-width .md-table-cell-container {
   padding-right: 12px;
   padding-left: 12px;
+}
+.is-mobile-device.md-dialog {
+  top: auto;
+}
+.is-mobile-device .md-dialog-container {
+  max-width: 100%;
+  width: 100%;
 }
 </style>
