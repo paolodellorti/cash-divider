@@ -120,6 +120,10 @@
         <md-autocomplete v-if="!isMobileDevice" v-model="newPeople.days" type="number" :min="1" :md-dense="true" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newPeople.days < 1}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
+        <md-field v-else :class="{'md-invalid': noValidForm && newPeople.days < 1}">
+          <label>Giorni di presenza</label>
+          <md-input v-model="newPeople.days" type="number" :min="1" required></md-input>
+        </md-field>
       <md-dialog-actions>
         <md-button @click="showPeopleDialog = false">Annulla</md-button>
         <md-button class="md-primary" @click="addPeople">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
@@ -143,6 +147,10 @@
         <md-autocomplete v-if="!isMobileDevice" v-model="newFamilies.days" type="number" :min="1" :md-dense="true" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
           <label>Giorni di presenza</label>
         </md-autocomplete>
+        <md-field v-else :class="{'md-invalid': noValidForm && newFamilies.days < 1}">
+          <label>Giorni di presenza</label>
+          <md-input v-model="newFamilies.days" type="number" :min="1" required></md-input>
+        </md-field>
       <md-dialog-actions>
         <md-button @click="showFamiliesDialog = false">Annulla</md-button>
         <md-button class="md-primary" @click="addFamilies">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
