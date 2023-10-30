@@ -34,7 +34,7 @@
         :key="days + 'people'"
       >
         <md-list-item>
-          <md-icon>{{ quantity == 1 ? 'person' : 'groups' }}</md-icon>
+          <md-icon>{{ quantity == 1 ? 'person' : quantity == 2 ? 'group' : 'groups' }}</md-icon>
           <span class="md-list-item-text">
             <span>
               <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <br v-if="isMobileWidth"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
@@ -288,7 +288,7 @@ export default {
       return !!(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     },
     isMobileWidth() {
-      return !!useWindowSize().width.value < 768;
+      return !!(useWindowSize().width.value < 768);
     },
   },
   methods: {
@@ -496,6 +496,9 @@ h2 {
 }
 .md-list-item-text :nth-child(2), .md-list-item-text :nth-child(3) {
   font-size: 16px!important;
+}
+.is-mobile-width .md-list-item-content>.md-icon:first-child {
+  margin-right: 20px!important;
 }
 .no-data {
   text-align: center;
