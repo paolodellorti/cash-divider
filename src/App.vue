@@ -119,7 +119,7 @@
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
         <span class="info-box">
-          Aggiungi una o più persone con lo stesso numero di presenze. Nel caso esistesse già una o più persone con il numero di presenze indicato in questo form,
+          Aggiungi una o più persone con lo stesso numero di presenze. Nel caso esistessero già persone con il numero di presenze indicato in questo form,
           verranno raggruppate in una riga, andando a sommare il totale.
         </span>
         <md-field :class="{'md-invalid': noValidForm && newPeople.quantity < 1}">
@@ -146,8 +146,8 @@
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi famiglie' }}</md-dialog-title>
         <span class="info-box">
-          Aggiungi uno o più gruppi famigliari con lo stesso numero di membri e presenze. Nel caso esistessero già uno o più gruppi famigliari con il numero di membri e presenze indicato in questo form,
-          verranno raggruppati in una riga, andando a sommare il totale.
+          Aggiungi una o più famiglie con lo stesso numero di membri e presenze. Nel caso esistessero già famiglie con il numero di membri e presenze indicato in questo form,
+          verranno raggruppate in una riga, andando a sommare il totale.
         </span>
         <md-field :class="{'md-invalid': noValidForm && newFamilies.quantity < 1}">
           <label>Numero di famiglie</label>
