@@ -468,7 +468,7 @@ h2 {
   text-align: center;
   background: #fff;
   border-radius: 2px;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 .results-cont .labels {
   color: #0000008A;
