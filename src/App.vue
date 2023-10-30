@@ -497,6 +497,9 @@ h2 {
 .md-list-item-text :nth-child(2), .md-list-item-text :nth-child(3) {
   font-size: 16px!important;
 }
+.md-divider {
+  margin: 0 8px!important;
+}
 .is-mobile-width .md-list-item-content>.md-icon:first-child {
   margin-right: 20px!important;
 }
