@@ -404,8 +404,8 @@ export default {
       let result = '';
       for (let cashSize of [50,20,10,5,2,0.5]) {
         if (vm.cashDivision[cashSize]) {
-          cashSize = cashSize == 0.5 ? '0,50' : cashSize;
-          result += cashSize + ' € => ' + vm.cashDivision[cashSize] + '\r\n';
+          cashSizeLabel = cashSize == 0.5 ? '0,50' : cashSize;
+          result += cashSizeLabel + ' € => ' + vm.cashDivision[cashSize] + '\r\n';
         }
       }
       result += 'Totale => ' + vm.cashTotal;
