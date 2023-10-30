@@ -1,29 +1,34 @@
 <template>
   <div class="page" :class="{'is-mobile-width': isMobileWidth}">
     <h1>Pocket Money Manager</h1>
-    <md-table :md-card="true">
-      <md-table-row>
-        <md-table-head>50 €</md-table-head>
-        <md-table-head>20 €</md-table-head>
-        <md-table-head>10 €</md-table-head>
-        <md-table-head>5 €</md-table-head>
-        <md-table-head>2 €</md-table-head>
-        <md-table-head>0,50 €</md-table-head>
-      </md-table-row>
-
-      <md-table-row>
-        <md-table-cell>{{ cashDivision[50] }}</md-table-cell>
-        <md-table-cell>{{ cashDivision[20] }}</md-table-cell>
-        <md-table-cell>{{ cashDivision[10] }}</md-table-cell>
-        <md-table-cell>{{ cashDivision[5] }}</md-table-cell>
-        <md-table-cell>{{ cashDivision[2] }}</md-table-cell>
-        <md-table-cell>{{ cashDivision[0.5] }}</md-table-cell>
-      </md-table-row>
-
-    </md-table>
-    <h3>Totale {{ cashTotal }}</h3>
-    <h2>Persone</h2>
-    <md-list>
+    <div class="results-cont md-elevation-2">
+      <div class="labels">
+        <div
+          v-for="size in [50,20,10,5,2,'0,50']"
+          :key="size"
+          class="label"
+          :class="{'no-border': size == '0,50'}"
+        >{{ size }} €</div>
+      </div>
+      <div class="results">
+        <div
+          v-for="size in [50,20,10,5,2,0.5]"
+          :key="size"
+          class="label"
+          :class="{'no-border': size == 0.5}"
+        >{{ cashDivision[size] }}</div>
+      </div>
+    </div>
+    <h3>
+      Totale {{ cashTotal }}
+      <br>
+      <md-button class="md-primary" @click="copyText">
+        <md-icon class="md-primary">content_copy</md-icon>
+        Copia conteggio
+      </md-button>
+    </h3>
+    <md-list class="md-elevation-2">
+      <h2>Persone</h2>
       <div
         v-for="(quantity, days, index) in people"
         :key="days + 'people'"
@@ -53,11 +58,11 @@
         Nessun dato
       </div>
       <md-button class="md-raised md-primary" @click="showPeopleDialog = true">
-        <md-icon class="md-primary">add</md-icon> Aggiungi persone
+        <md-icon class="md-primary">add</md-icon> Aggiungi
       </md-button>
-    </md-list>
-    <h2>Famiglie</h2>
-    <md-list>
+    </md-list><br>
+    <md-list class="md-elevation-2">
+      <h2>Famiglie</h2>
       <div
         v-for="(familyData, members, index) in families"
         :key="members + 'people'"
@@ -92,7 +97,7 @@
         Nessun dato
       </div>
       <md-button class="md-raised md-primary" @click="showFamiliesDialog = true">
-        <md-icon class="md-primary">add</md-icon> Aggiungi famiglie
+        <md-icon class="md-primary">add</md-icon> Aggiungi
       </md-button>
     </md-list>
 
@@ -103,7 +108,7 @@
     </div>
 
     <div class="footer">
-      Pocket Money Manager v1.03<br>by Paolo Dell'Orti
+      Pocket Money Manager v1.04<br>by Paolo Dell'Orti
     </div>
 
     <md-dialog
@@ -113,6 +118,10 @@
       @md-closed="onCloseDialog(true)"
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
+        <span class="info-box">
+          Aggiungi una o più persone con lo stesso numero di presenze. Nel caso esistesse già una o più persone con il numero di presenze indicato in questo form,
+          verranno raggruppate in una riga, andando a sommare il totale.
+        </span>
         <md-field :class="{'md-invalid': noValidForm && newPeople.quantity < 1}">
           <label>Numero di persone</label>
           <md-input v-model="newPeople.quantity" type="number" :min="1" required></md-input>
@@ -136,6 +145,10 @@
       @md-closed="onCloseDialog(false)"
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi famiglie' }}</md-dialog-title>
+        <span class="info-box">
+          Aggiungi uno o più gruppi famigliari con lo stesso numero di membri e presenze. Nel caso esistessero già uno o più gruppi famigliari con il numero di membri e presenze indicato in questo form,
+          verranno raggruppati in una riga, andando a sommare il totale.
+        </span>
         <md-field :class="{'md-invalid': noValidForm && newFamilies.quantity < 1}">
           <label>Numero di famiglie</label>
           <md-input v-model="newFamilies.quantity" type="number" required></md-input>
@@ -169,16 +182,22 @@
     <md-dialog-confirm
       class="delete-dialog"
       :md-active.sync="showResetDialog"
-      md-title="Vuoi veramente resettare tutti i dati?"
-      md-content="Perderai tutti i dati visibili, anche quelli salvati nel tuo browser."
+      md-title="Vuoi veramente eliminare tutti i dati inseriti?"
+      md-content="Perderai tutti i dati visibili, anche quelli salvati nel tuo browser"
       md-confirm-text="Resetta"
       md-cancel-text="Annulla"
       @md-cancel="showResetDialog = false"
       @md-confirm="resetAll"
     />
-    <md-snackbar md-position="center" :md-duration="2000" :md-active.sync="showSnackbar" md-persistent>
-      <span>Compila il form correttamente per continuare</span>
-      <md-button class="md-accent" @click="showSnackbar = false">
+    <md-snackbar md-position="center" :md-duration="2000" :md-active.sync="showCopySnackbar" md-persistent>
+      <span><md-icon class="confirm">check_circle</md-icon> Conteggio copiato</span>
+      <md-button class="md-accent" @click="showCopySnackbar = false">
+        <md-icon class="md-accent">close</md-icon>
+      </md-button>
+    </md-snackbar>
+    <md-snackbar md-position="center" :md-duration="2000" :md-active.sync="showErrorSnackbar" md-persistent>
+      <span><md-icon class="warning">error</md-icon> Compila il form correttamente per continuare</span>
+      <md-button class="md-accent" @click="showErrorSnackbar = false">
         <md-icon class="md-accent">close</md-icon>
       </md-button>
     </md-snackbar>
@@ -213,7 +232,8 @@ export default {
       windowWidth: 0,
       trigger: 0,
       noValidForm: false,
-      showSnackbar: false,
+      showCopySnackbar: false,
+      showErrorSnackbar: false,
       autocompleteOptions: [31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
     }
   },
@@ -276,7 +296,7 @@ export default {
       let vm = this;
       if (vm.newPeople.quantity < 1 || vm.newPeople.days < 1) {
         vm.noValidForm = true;
-        vm.showSnackbar = true;
+        vm.showErrorSnackbar = true;
       } else {
         vm.trigger ++;
         if (vm.isEditing) {
@@ -299,7 +319,7 @@ export default {
       let vm = this;
       if (vm.newFamilies.quantity < 1 || vm.newFamilies.days < 1 || vm.newFamilies.members < 1) {
         vm.noValidForm = true;
-        vm.showSnackbar = true;
+        vm.showErrorSnackbar = true;
       } else {
         vm.trigger ++;
         if (vm.isEditing) {
@@ -379,6 +399,19 @@ export default {
       }
       vm.isEditing = null;
     },
+    copyText() {
+      let vm = this;
+      let result = '';
+      for (let [cashSize, quantity] of Object.entries(vm.cashDivision)) {
+        if (quantity) {
+          cashSize = cashSize == 0.5 ? '0,50' : cashSize;
+          result += cashSize + ' € => ' + quantity + '\r\n';
+        }
+      }
+      result += 'Totale => ' + vm.cashTotal;
+      navigator.clipboard.writeText(result);
+      vm.showCopySnackbar = true;
+    },
     calculateCashDivision(object, result, familymembers = 1) {
       for (const [days, quantity] of Object.entries(object)) {
         let total = days * 2.5 * familymembers;
@@ -417,38 +450,46 @@ body {
 h1 {
   line-height: 30px;
 }
-h1, h3 {
+h1, h3, h2 {
   text-align: center;
 }
 h2 {
-  margin-top: 25px;
-  margin-bottom: 4px;
+  margin-top: 5px;
+  margin-bottom: 10px;
 }
 .page {
   margin: 10px auto;
   max-width: 750px;
   padding: 0 10px;
 }
-.result-container {
+.results-cont {
   width: 100%;
   margin-bottom: 20px;
   text-align: center;
-  border-spacing: 0;
+  background: #fff;
+  border-radius: 2px;
+  padding: 10px 0;
 }
-.result-container td {
-  background: #bcfff5;
-  border: none;
+.results-cont .labels {
+  color: #0000008A;
+  font-weight: bold;
 }
-.result-container td.first {
-  background: #ffefb7;
-}
-.input-cont {
-  width: 50%;
-  min-width: 210px;
-  max-width: 300px;
-  margin-bottom: 15px;
+.results-cont .labels,
+.results-cont .results {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  display: flex;
+}
+.results-cont .label {
+  width: 16.5%;
+  border-right: 1px solid #0000001f;
+  font-size: 12px;
+}
+.results-cont .label {
+  padding: 10px 0;
+}
+.results-cont .no-border {
+  border-right: none;
 }
 .md-dialog-container {
   padding: 0 20px;
@@ -504,5 +545,16 @@ h2 {
 .is-mobile-device .md-dialog-container {
   max-width: 100%;
   width: 100%;
+}
+.confirm {
+  color: #0bbf47!important;
+}
+.warning {
+  color: #ff9800!important;
+}
+.info-box {
+  font-style: italic;
+  font-size: 12px;
+  color: #0000008A;
 }
 </style>
