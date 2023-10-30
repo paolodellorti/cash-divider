@@ -151,11 +151,12 @@
         </span>
         <md-field :class="{'md-invalid': noValidForm && newFamilies.quantity < 1}">
           <label>Numero di famiglie</label>
-          <md-input v-model="newFamilies.quantity" type="number" required></md-input>
+          <md-input v-model="newFamilies.quantity" type="number" :min="1" required></md-input>
         </md-field>
         <md-field :class="{'md-invalid': noValidForm && newFamilies.members < 1}">
           <label>Numero di membri per famiglia</label>
-          <md-input v-model="newFamilies.members" type="number" required></md-input>
+          <md-input v-model="newFamilies.members" type="number" :min="2" required></md-input>
+          <span class="md-error">Il numero di membri per famiglia deve essere almeno 2</span>
         </md-field>
         <md-autocomplete v-if="!isMobileDevice" v-model="newFamilies.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
           <label>Giorni di presenza</label>
@@ -317,7 +318,7 @@ export default {
     },
     addFamilies() {
       let vm = this;
-      if (vm.newFamilies.quantity < 1 || vm.newFamilies.days < 1 || vm.newFamilies.members < 1) {
+      if (vm.newFamilies.quantity < 1 || vm.newFamilies.days < 1 || vm.newFamilies.members < 2) {
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
       } else {
@@ -526,6 +527,7 @@ h2 {
 }
 .md-menu-content {
   z-index: 9999!important;
+  max-height: 25vh!important;
 }
 .reset-button-cont {
   width: 100%;
