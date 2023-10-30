@@ -402,10 +402,10 @@ export default {
     copyText() {
       let vm = this;
       let result = '';
-      for (let [cashSize, quantity] of Object.entries(vm.cashDivision)) {
-        if (quantity) {
+      for (let cashSize of [50,20,10,5,2,0.5]) {
+        if (vm.cashDivision[cashSize]) {
           cashSize = cashSize == 0.5 ? '0,50' : cashSize;
-          result += cashSize + ' € => ' + quantity + '\r\n';
+          result += cashSize + ' € => ' + vm.cashDivision[cashSize] + '\r\n';
         }
       }
       result += 'Totale => ' + vm.cashTotal;
