@@ -153,7 +153,7 @@
           <label>Numero di famiglie</label>
           <md-input v-model="newFamilies.quantity" type="number" :min="1" required></md-input>
         </md-field>
-        <md-field :class="{'md-invalid': noValidForm && newFamilies.members < 1}">
+        <md-field :class="{'md-invalid': noValidForm && newFamilies.members < 2}">
           <label>Numero di membri per famiglia</label>
           <md-input v-model="newFamilies.members" type="number" :min="2" required></md-input>
           <span class="md-error">Il numero di membri per famiglia deve essere almeno 2</span>
