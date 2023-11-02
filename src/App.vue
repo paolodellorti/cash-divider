@@ -44,7 +44,7 @@
             <md-icon class="md-primary">edit_square</md-icon>
             <md-tooltip v-if="!isMobileDevice" md-direction="top">Modifica</md-tooltip>
           </md-button>
-          <md-button class="md-icon-button md-list-action" @click=" deletingPeople = days; showDeleteDialog = true">
+          <md-button class="md-icon-button md-list-action" @click="deletingPeople = days; showDeleteDialog = true">
             <md-icon class="md-accent">delete</md-icon>
             <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
           </md-button>
@@ -57,7 +57,7 @@
       >
         Nessun dato
       </div>
-      <md-button class="md-raised md-primary" @click="showPeopleDialog = true">
+      <md-button class="md-raised md-primary" @click="showAddPeopleDialog = true">
         <md-icon class="md-primary">add</md-icon> Aggiungi
       </md-button>
     </md-list><br>
@@ -87,35 +87,65 @@
               <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
             </md-button>
           </md-list-item>
-          <md-divider v-if="index + 1 < Object.keys(families).length"></md-divider>
+          <md-divider v-if="index + 1 < Object.keys(families).length || exceptionalFamilies.length"></md-divider>
         </div>
       </div>
       <div
-        v-if="!Object.keys(families).length"
+        v-for="(family, index) in exceptionalFamilies"
+        :key="family.members + ',' + index"
+      >
+        <md-list-item>
+          <md-icon>family_restroom</md-icon>
+          <span class="md-list-item-text">
+            <span>
+              <b>1</b> famiglia di <b>{{ family.members }}</b> membri di cui: <br>
+              <div
+                v-for="attendance in family.attendances"
+                :key="attendance.days + 'family.attendances'"
+                class="family-attendances"
+              >
+                - <b>{{ attendance.members }}</b> membr{{ attendance.members == 1 ? 'o' : 'i' }} con <br v-if="isMobileWidth">
+                <span v-if="isMobileWidth">&nbsp;</span> <b>{{ attendance.days }}</b> giorn{{ attendance.days == 1 ? 'o': 'i' }} di presenza
+              </div>
+            </span>
+          </span>
+          <md-button class="md-icon-button md-list-action" @click="deletingExceptionalFamily = index; showDeleteDialog = true;">
+            <md-icon class="md-accent">delete</md-icon>
+            <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
+          </md-button>
+        </md-list-item>
+        <md-divider v-if="index + 1 < exceptionalFamilies.length"></md-divider>
+      </div>
+      <div
+        v-if="!Object.keys(families).length && !exceptionalFamilies.length"
         class="no-data"
       >
         Nessun dato
       </div>
-      <md-button class="md-raised md-primary" @click="showFamiliesDialog = true">
+      <md-button class="md-raised md-primary" @click="showFamilyTypesDialog = true">
         <md-icon class="md-primary">add</md-icon> Aggiungi
       </md-button>
     </md-list>
 
     <div class="reset-button-cont">
-      <md-button class="md-raised md-accent" :disabled="!Object.keys(people).length && !Object.keys(families).length" @click="showResetDialog = true">
+      <md-button
+        class="md-raised md-accent"
+        :disabled="!Object.keys(people).length && !Object.keys(families).length && !exceptionalFamilies.length"
+        @click="showResetDialog = true"
+      >
         <md-icon class="md-primary">restart_alt</md-icon> Resetta
       </md-button>
     </div>
 
     <div class="footer">
-      Pocket Money Manager v1.04<br>by Paolo Dell'Orti
+      Pocket Money Manager v1.1<br>by Paolo Dell'Orti
     </div>
 
     <md-dialog
       :class="{'is-mobile-device': isMobileDevice}"
-      :md-active.sync="showPeopleDialog"
+      :md-active.sync="showAddPeopleDialog"
       :md-fullscreen="false"
-      @md-closed="onCloseDialog(true)"
+      @md-closed="onCloseDialog('people')"
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
         <span v-if="!isEditing" class="info-box">
@@ -135,41 +165,175 @@
           <md-input v-model="newPeople.days" type="number" :min="1" required></md-input>
         </md-field>
       <md-dialog-actions>
-        <md-button @click="showPeopleDialog = false">Annulla</md-button>
+        <md-button @click="showAddPeopleDialog = false">Annulla</md-button>
         <md-button class="md-primary" @click="addPeople">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
       </md-dialog-actions>
     </md-dialog>
     <md-dialog
-      :class="{'is-mobile-device': isMobileDevice}"
-      :md-active.sync="showFamiliesDialog"
+      :class="{'is-mobile-device': isMobileWidth}"
+      :md-active.sync="showFamilyTypesDialog"
       :md-fullscreen="false"
-      @md-closed="onCloseDialog(false)"
+    >
+      <md-card
+        class="families-type-card first"
+        md-with-hover
+        @click.native="showAddFamiliesDialog = true;showFamilyTypesDialog = false"
+      >
+        <md-ripple>
+          <div class="families-type-card-container">
+            <md-icon>add</md-icon>
+            <md-card-header>
+              <div class="md-title">Famiglia/e standard</div>
+              <div class="md-subhead">Aggiungi una o più famiglie in cui i membri hanno tutti lo stesso numero di presenze</div>
+            </md-card-header>
+          </div>
+        </md-ripple>
+      </md-card>
+      <md-card
+        class="families-type-card"
+        md-with-hover
+        @click.native="showAddExceptionalFamilyDialog = true;showFamilyTypesDialog = false"
+      >
+        <md-ripple>
+          <div class="families-type-card-container">
+            <md-icon>add</md-icon>
+            <md-card-header>
+              <div class="md-title">Famiglia non omogenea</div>
+              <div class="md-subhead">Aggiungi una famiglia in cui i membri <b>NON</b> hanno tutti lo stesso numero di presenze</div>
+            </md-card-header>
+          </div>
+        </md-ripple>
+      </md-card>
+    </md-dialog>
+    <md-dialog
+      :class="{'is-mobile-device': isMobileWidth}"
+      :md-active.sync="showAddFamiliesDialog"
+      :md-fullscreen="false"
+      @md-closed="onCloseDialog('families')"
     >
       <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi famiglie' }}</md-dialog-title>
-        <span v-if="!isEditing" class="info-box">
-          Aggiungi una o più famiglie con lo stesso numero di membri e presenze.<br v-if="!isMobileWidth">
-          Nel caso esistessero già famiglie con il numero di membri e presenze indicato in questo form,<br v-if="!isMobileWidth">
-          verranno raggruppate in una riga, andando a sommare il totale.
-        </span>
-        <md-field :class="{'md-invalid': noValidForm && newFamilies.quantity < 1}">
-          <label>Numero di famiglie</label>
-          <md-input v-model="newFamilies.quantity" type="number" :min="1" required></md-input>
-        </md-field>
-        <md-field :class="{'md-invalid': noValidForm && newFamilies.members < 2}">
-          <label>Numero di membri per famiglia</label>
-          <md-input v-model="newFamilies.members" type="number" :min="2" required></md-input>
-          <span class="md-error">Il numero di membri per famiglia deve essere almeno 2</span>
-        </md-field>
-        <md-autocomplete v-if="!isMobileDevice" v-model="newFamilies.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
-          <label>Giorni di presenza</label>
-        </md-autocomplete>
-        <md-field v-else :class="{'md-invalid': noValidForm && newFamilies.days < 1}">
-          <label>Giorni di presenza</label>
-          <md-input v-model="newFamilies.days" type="number" :min="1" required></md-input>
-        </md-field>
+      <span v-if="!isEditing" class="info-box">
+        Aggiungi una o più famiglie con lo stesso numero di membri e presenze.<br v-if="!isMobileWidth">
+        Nel caso esistessero già famiglie con il numero di membri e presenze indicato in questo form,<br v-if="!isMobileWidth">
+        verranno raggruppate in una riga, andando a sommare il totale.
+      </span>
+      <md-field :class="{'md-invalid': noValidForm && newFamilies.quantity < 1}">
+        <label>Numero di famiglie</label>
+        <md-input v-model="newFamilies.quantity" type="number" :min="1" required></md-input>
+      </md-field>
+      <md-field :class="{'md-invalid': noValidForm && newFamilies.members < 2}">
+        <label>Numero di membri per famiglia</label>
+        <md-input v-model="newFamilies.members" type="number" :min="2" required></md-input>
+        <span class="md-error">Il numero di membri per famiglia deve essere almeno 2</span>
+      </md-field>
+      <md-autocomplete v-if="!isMobileDevice" v-model="newFamilies.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
+        <label>Giorni di presenza</label>
+      </md-autocomplete>
+      <md-field v-else :class="{'md-invalid': noValidForm && newFamilies.days < 1}">
+        <label>Giorni di presenza</label>
+        <md-input v-model="newFamilies.days" type="number" :min="1" required></md-input>
+      </md-field>
       <md-dialog-actions>
-        <md-button @click="showFamiliesDialog = false">Annulla</md-button>
+        <md-button @click="showAddFamiliesDialog = false">Annulla</md-button>
         <md-button class="md-primary" @click="addFamilies">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <md-dialog
+      :class="{'is-mobile-device': isMobileWidth}"
+      :md-active.sync="showAddExceptionalFamilyDialog"
+      :md-fullscreen="false"
+      @md-closed="onCloseDialog('exceptionalFamilies')"
+    >
+      <md-dialog-title>Aggiungi famiglia non omogenea</md-dialog-title>
+      <span v-if="!isEditing" class="info-box">
+        Aggiungi una famiglia in cui ci sono membri con un numero di presenze diverse l'uno dall'altro.<br v-if="!isMobileWidth">
+        Inserisci il numero di membri totale, poi potrai scegliere il numero di presenze dei singoli membri.
+      </span>
+      <md-field :class="{'md-invalid': noValidForm && newExceptionalFamily.members < 2}">
+        <label>Numero di membri della famiglia</label>
+        <md-input v-model="newExceptionalFamily.members" type="number" :min="2" required></md-input>
+        <span class="md-error">Il numero di membri della famiglia deve essere almeno 2</span>
+      </md-field>
+      <md-dialog-actions>
+        <md-button @click="showAddExceptionalFamilyDialog = false">Annulla</md-button>
+        <md-button class="md-primary" @click="checkAddAttendances">Continua</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <md-dialog
+      :class="{'is-mobile-device': isMobileWidth}"
+      :md-active.sync="showAddAttendancesDialog"
+      :md-fullscreen="false"
+    >
+    <md-dialog-title>Aggiungi membri e presenze</md-dialog-title>
+      <h3 class="md-invalid">
+        <md-icon :class="{ 'confirm': parseInt(selectedMemberNewExceptionalFamily) == parseInt(newExceptionalFamily.members) }">check_circle</md-icon> &nbsp;
+        {{ parseInt(selectedMemberNewExceptionalFamily) }}/{{ parseInt(newExceptionalFamily.members) }} membri aggiunti
+      </h3>
+      <md-list>
+        <div
+          v-for="(attendance, index) in newExceptionalFamily.attendances"
+          :key="attendance.days + ',' + attendance.members"
+        >
+          <md-list-item>
+            <md-icon>{{ attendance.members == 1 ? 'person' : attendance.members == 2 ? 'group' : 'groups' }}</md-icon>
+            <span class="md-list-item-text">
+              <span>
+                <b>{{ attendance.members }}</b> membr{{ attendance.members == 1 ? 'o' : 'i' }} con <b>{{ attendance.days }}</b> giorni di presenza
+              </span>
+            </span>
+            <md-button class="md-icon-button md-list-action" @click="newExceptionalFamily.attendances.splice(index, 1)">
+              <md-icon class="md-accent">delete</md-icon>
+              <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
+            </md-button>
+          </md-list-item>
+          <md-divider v-if="index + 1 < newExceptionalFamily.attendances.length"></md-divider>
+        </div>
+        <div
+          v-if="!newExceptionalFamily.attendances.length"
+          class="no-data"
+        >
+          Nessun dato
+        </div>
+        <md-button
+          class="md-raised md-primary"
+          :disabled="newExceptionalFamily.members == selectedMemberNewExceptionalFamily"
+          @click="showAddAttendanceDialog = true"
+        >
+          <md-icon class="md-primary">add</md-icon> Aggiungi
+        </md-button>
+      </md-list>
+      <md-dialog-actions>
+        <md-button @click="showAddAttendancesDialog = false; showAddExceptionalFamilyDialog = true">Indietro</md-button>
+        <md-button class="md-primary" @click="addExceptionalFamily">Salva</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <md-dialog
+      :md-active.sync="showAddAttendanceDialog"
+      class="add-attendance-dialog"
+      :class="{'is-mobile-device': isMobileWidth}"
+      :md-fullscreen="false"
+      @md-opened="noValidForm = false"
+    >
+      <h3
+        :class="{'invalid-text': parseInt(selectedMemberNewExceptionalFamily || 0) + parseInt(newAttendance.members || 0) > parseInt(newExceptionalFamily.members)}"
+      >
+        {{ parseInt(selectedMemberNewExceptionalFamily || 0) + parseInt(newAttendance.members || 0) }}/{{ parseInt(newExceptionalFamily.members) }}
+        membri aggiunti
+      </h3>
+      <md-field :class="{'md-invalid': noValidForm && (newAttendance.members < 1 || (parseInt(selectedMemberNewExceptionalFamily + newAttendance.members) > parseInt(newExceptionalFamily.members))) }">
+        <label>Numero di membri (min 1, max {{ newExceptionalFamily.members - selectedMemberNewExceptionalFamily }})</label>
+        <md-input v-model="newAttendance.members" type="number" :min="1" required></md-input>
+      </md-field>
+      <md-autocomplete v-if="!isMobileDevice" v-model="newAttendance.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newAttendance.days < 1}" required>
+        <label>Giorni di presenza</label>
+      </md-autocomplete>
+      <md-field v-else :class="{'md-invalid': noValidForm && newAttendance.days < 1}">
+        <label>Giorni di presenza</label>
+        <md-input v-model="newAttendance.days" type="number" :min="1" required></md-input>
+      </md-field>
+      <md-dialog-actions>
+        <md-button @click="showAddAttendanceDialog = false; showAddAttendancesDialog = true">Indietro</md-button>
+        <md-button class="md-primary" @click="addAttendance">Aggiungi</md-button>
       </md-dialog-actions>
     </md-dialog>
     <md-dialog-confirm
@@ -179,7 +343,7 @@
       :md-content="deletingDataSentence"
       md-confirm-text="Elimina"
       md-cancel-text="Annulla"
-      @md-cancel="showDeleteDialog = false; deletingPeople = null; deletingFamilies = null"
+      @md-cancel="showDeleteDialog = false; deletingPeople = null; deletingFamilies = null; deletingExceptionalFamily = null;"
       @md-confirm="deleteData"
     />
     <md-dialog-confirm
@@ -193,13 +357,13 @@
       @md-confirm="resetAll"
     />
     <md-snackbar md-position="center" :md-duration="2000" :md-active.sync="showCopySnackbar" md-persistent>
-      <span><md-icon class="confirm">check_circle</md-icon> Conteggio copiato</span>
+      <span><md-icon class="confirm">check_circle</md-icon>&nbsp;Conteggio copiato</span>
       <md-button class="md-accent" @click="showCopySnackbar = false">
         <md-icon class="md-accent">close</md-icon>
       </md-button>
     </md-snackbar>
     <md-snackbar md-position="center" :md-duration="2000" :md-active.sync="showErrorSnackbar" md-persistent>
-      <span><md-icon class="warning">error</md-icon> Compila il form correttamente per continuare</span>
+      <span><md-icon class="warning">error</md-icon>&nbsp;{{ errorSentence || "Compila il form correttamente per continuare" }}</span>
       <md-button class="md-accent" @click="showErrorSnackbar = false">
         <md-icon class="md-accent">close</md-icon>
       </md-button>
@@ -216,6 +380,7 @@ export default {
     return {
       people: {},
       families: {},
+      exceptionalFamilies: [],
       newPeople: {
         quantity: null,
         days: null
@@ -225,26 +390,48 @@ export default {
         members: null,
         days: null
       },
+      newExceptionalFamily: {
+        members: null,
+        attendances: []
+      },
+      newAttendance: {
+        members: null,
+        days: null
+      },
       isEditing: null,
-      showPeopleDialog: false,
-      showFamiliesDialog: false,
+      showAddPeopleDialog: false,
+      showAddFamiliesDialog: false,
+      showAddExceptionalFamilyDialog: false,
+      showAddAttendancesDialog: false,
+      showAddAttendanceDialog: false,
+      showFamilyTypesDialog: false,
       showDeleteDialog: false,
       showResetDialog: false,
       deletingPeople: null,
       deletingFamilies: null,
+      deletingExceptionalFamily: null,
       windowWidth: 0,
       trigger: 0,
       noValidForm: false,
       showCopySnackbar: false,
       showErrorSnackbar: false,
-      autocompleteOptions: [31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
+      autocompleteOptions: [31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1],
+      errorSentence: null
+    }
+  },
+  watch: {
+    "newExceptionalFamily.members": {
+      handler() {
+        let vm = this;
+        vm.newExceptionalFamily.attendances = [];
+      }
     }
   },
   computed: {
     cashDivision() {
       let vm = this;
       vm.trigger++;
-      localStorage.setItem('cashDivisor', JSON.stringify([vm.people, vm.families]));
+      localStorage.setItem('cashDivisor', JSON.stringify([vm.people, vm.families, vm.exceptionalFamilies]));
       let result = {
         50: 0,
         20: 0,
@@ -257,6 +444,7 @@ export default {
       for (const [familymembers, family] of Object.entries(vm.families)) {
         result = vm.calculateCashDivision(family, result, familymembers);
       }
+      result = vm.calculateCashDivision(vm.exceptionalFamilies, result);
       return result;
     },
     cashTotal() {
@@ -284,8 +472,23 @@ export default {
           di <b>${vm.deletingFamilies[0]}</b> membri
           con <b>${vm.deletingFamilies[1]}</b> giorn${vm.deletingFamilies[1] == 1 ? 'o' : 'i'} di presenza
         `
+      } else if (vm.deletingExceptionalFamily !== null) {
+        let result = `<b>1</b> famiglia di <b>${vm.exceptionalFamilies[vm.deletingExceptionalFamily].members}</b> membri di cui:<br>`;
+        for (const attendance of vm.exceptionalFamilies[vm.deletingExceptionalFamily].attendances) {
+          result += `
+            &nbsp;&nbsp; - <b>${attendance.members}</b> membr${attendance.members == 1 ? 'o' : 'i'}
+            con <b>${attendance.days}</b> giorn${attendance.days == 1 ? 'o' : 'i'} di presenza<br>
+          `
+        }
+        return result;
       }
-      return '1 famiglia da 3 membri con 4 giorni di presenza'
+      return '';
+    },
+    selectedMemberNewExceptionalFamily() {
+      let vm = this;
+      return parseInt(vm.newExceptionalFamily.attendances.reduce((acc, attendance) => {
+        return acc + attendance.members;
+      }, 0));
     },
     isMobileDevice() {
       return !!(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -315,7 +518,7 @@ export default {
           days: null
         };
         vm.noValidForm = false;
-        vm.showPeopleDialog = false;
+        vm.showAddPeopleDialog = false;
       }
     },
     addFamilies() {
@@ -342,7 +545,48 @@ export default {
           days: null
         };
         vm.noValidForm = false;
-        vm.showFamiliesDialog = false;
+        vm.showAddFamiliesDialog = false;
+      }
+    },
+    addExceptionalFamily() {
+      let vm = this;
+      if (vm.selectedMemberNewExceptionalFamily != vm.newExceptionalFamily.members) {
+        vm.errorSentence = 'Aggiungi tutti i membri con le relative presenze per continuare';
+        vm.noValidForm = true;
+        vm.showErrorSnackbar = true;
+        vm.errorSentence = null;
+      } else {
+        vm.exceptionalFamilies.push({
+          members: vm.newExceptionalFamily.members,
+          attendances: vm.newExceptionalFamily.attendances
+        });
+        vm.newExceptionalFamily.members = null;
+        vm.showAddAttendancesDialog = false;
+      }
+    },
+    addAttendance() {
+      let vm = this;
+      if (vm.newAttendance.members < 1 || vm.newAttendance.days < 1 || (vm.newAttendance.members > (vm.newExceptionalFamily.members - vm.selectedMemberNewExceptionalFamily))) {
+        vm.errorSentence = !vm.newAttendance.members || !vm.newAttendance.days ? null : 'Non puoi aggiungere un numero di membri maggiore al numero totale dei membri della famiglia';
+        vm.noValidForm = true;
+        vm.showErrorSnackbar = true;
+        vm.errorSentence = null;
+      } else {
+        const alreadyExist = vm.newExceptionalFamily.attendances.findIndex(attendance => attendance.days == vm.newAttendance.days);
+        if (alreadyExist != -1) {
+          vm.newExceptionalFamily.attendances[alreadyExist].members += parseInt(vm.newAttendance.members);
+        } else {
+          vm.newExceptionalFamily.attendances.push({
+            days: parseInt(vm.newAttendance.days),
+            members: parseInt(vm.newAttendance.members)
+          });
+        }
+        vm.newAttendance = {
+          days: null,
+          members: null
+        }
+        vm.showAddAttendanceDialog = false;
+        vm.showAddAttendancesDialog = true;
       }
     },
     deleteData() {
@@ -355,9 +599,12 @@ export default {
         if (!Object.keys(vm.families[vm.deletingFamilies[0]]).length) {
           delete vm.families[vm.deletingFamilies[0]];
         }
+      } else if (vm.deletingExceptionalFamily !== null) {
+        vm.exceptionalFamilies.splice(vm.deletingExceptionalFamily, 1);
       }
       vm.deletingPeople = null;
-      vm.deletingFamilies = null
+      vm.deletingFamilies = null;
+      vm.deletingExceptionalFamily = null;
       vm.showDeleteDialog = false;
     },
     resetAll() {
@@ -365,6 +612,24 @@ export default {
       vm.trigger ++;
       vm.people = {};
       vm.families = {};
+      vm.exceptionalFamilies = [];
+      vm.newPeople = {
+        quantity: null,
+        days: null
+      };
+      vm.newFamilies = {
+        quantity: null,
+        members: null,
+        days: null
+      };
+      vm.newExceptionalFamily = {
+        members: null,
+        attendances: []
+      };
+      vm.newAttendance = {
+        members: null,
+        days: null
+      };
       vm.showResetDialog = false;
     },
     openEditDialog(days, quantity, members = null) {
@@ -375,25 +640,25 @@ export default {
           days: days,
           quantity: quantity
         };
-        vm.showPeopleDialog = true;
+        vm.showAddPeopleDialog = true;
       } else {
         vm.newFamilies = {
           days: days,
           quantity: quantity,
           members: members
         };
-        vm.showFamiliesDialog = true;
+        vm.showAddFamiliesDialog = true;
       }
     },
-    onCloseDialog(isPeopleDialog) {
+    onCloseDialog(dialog) {
       let vm = this;
       vm.noValidForm = false;
-      if (vm.isEditing && isPeopleDialog) {
+      if (vm.isEditing && dialog == 'people') {
         vm.newPeople = {
           days: null,
           quantity: null,
         };
-      } else if (vm.isEditing) {
+      } else if (vm.isEditing && dialog == 'families') {
         vm.newFamilies = {
           days: null,
           quantity: null,
@@ -401,6 +666,16 @@ export default {
         };
       }
       vm.isEditing = null;
+    },
+    checkAddAttendances() {
+      let vm = this;
+      if (vm.newExceptionalFamily.members < 2) {
+        vm.noValidForm = true;
+        vm.showErrorSnackbar = true;
+      } else {
+        vm.showAddExceptionalFamilyDialog = false;
+        vm.showAddAttendancesDialog = true;
+      }
     },
     copyText() {
       let vm = this;
@@ -416,12 +691,27 @@ export default {
       vm.showCopySnackbar = true;
     },
     calculateCashDivision(object, result, familymembers = 1) {
-      for (const [days, quantity] of Object.entries(object)) {
-        let total = days * 2.5 * familymembers;
-        for (const cashSize of [50, 20, 10, 5, 2, 1, 0.5]) {
-          if (total / cashSize >= 1) {
-            result[cashSize] += parseInt(total / cashSize) * quantity;
-            total -= cashSize * parseInt(total / cashSize);
+      if (!Array.isArray(object)) {
+        for (const [days, quantity] of Object.entries(object)) {
+          let total = days * 2.5 * familymembers;
+          for (const cashSize of [50, 20, 10, 5, 2, 1, 0.5]) {
+            if (total / cashSize >= 1) {
+              result[cashSize] += parseInt(total / cashSize) * quantity;
+              total -= cashSize * parseInt(total / cashSize);
+            }
+          }
+        }
+      } else {
+        for (const family of object) {
+          let total = 0;
+          for (const attendance of family.attendances) {
+            total += attendance.days * 2.5 * attendance.members;
+          }
+          for (const cashSize of [50, 20, 10, 5, 2, 1, 0.5]) {
+            if (total / cashSize >= 1) {
+              result[cashSize] += parseInt(total / cashSize);
+              total -= cashSize * parseInt(total / cashSize);
+            }
           }
         }
       }
@@ -433,6 +723,7 @@ export default {
     if (localStorage.cashDivisor) {
       vm.people = JSON.parse(localStorage.cashDivisor)[0];
       vm.families = JSON.parse(localStorage.cashDivisor)[1];
+      vm.exceptionalFamilies = JSON.parse(localStorage.cashDivisor)[2];
     }
   },
   created() {
@@ -464,6 +755,9 @@ h2 {
   margin: 10px auto;
   max-width: 750px;
   padding: 0 10px;
+}
+.is-mobile-width {
+  padding: 0;
 }
 .results-cont {
   width: 100%;
@@ -504,7 +798,7 @@ h2 {
   margin: 0 8px!important;
 }
 .is-mobile-width .md-list-item-content>.md-icon:first-child {
-  margin-right: 20px!important;
+  margin-right: 10px!important;
 }
 .no-data {
   text-align: center;
@@ -566,5 +860,44 @@ h2 {
   font-style: italic;
   font-size: 12px;
   color: #0000008A;
+}
+.families-type-card {
+  margin-bottom: 24px;
+}
+.families-type-card.first {
+  margin-top: 24px;
+}
+.families-type-card .md-title {
+  font-size: 20px!important;
+}
+.families-type-card-container {
+  margin: 0 10px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.add-attendance-dialog .md-dialog-container {
+  min-width: 310px;
+}
+.md-button .md-disabled .md-icon {
+  color: rgba(0,0,0,0.26)!important;
+}
+.invalid-text {
+  color: #ff1744;
+}
+.family-attendances {
+  margin-left: 20px!important;
+}
+.is-mobile-width .family-attendances {
+  margin-left: 10px!important;
+}
+.is-mobile-width .md-list-item-content .md-list-action:last-of-type {
+  margin: auto!important;
+}
+.is-mobile-width .md-list-item-content .md-list-action {
+  margin: 0 -15px 0 0;
+}
+.is-mobile-width .md-list-item-content {
+  padding: 4px 8px;
 }
 </style>
