@@ -104,8 +104,8 @@
                 :key="attendance.days + 'family.attendances'"
                 class="family-attendances"
               >
-                - <b>{{ attendance.members }}</b> membr{{ attendance.members == 1 ? 'o' : 'i' }} con <br v-if="isMobileWidth">
-                <span v-if="isMobileWidth">&nbsp;</span> <b>{{ attendance.days }}</b> giorn{{ attendance.days == 1 ? 'o': 'i' }} di presenza
+                <b>{{ attendance.members }}</b> membr{{ attendance.members == 1 ? 'o' : 'i' }} con <br v-if="isMobileWidth">
+                <b>{{ attendance.days }}</b> giorn{{ attendance.days == 1 ? 'o': 'i' }} di presenza
               </div>
             </span>
           </span>
@@ -138,7 +138,7 @@
     </div>
 
     <div class="footer">
-      Pocket Money Manager v1.1<br>by Paolo Dell'Orti
+      Pocket Money Manager v1.11<br>by Paolo Dell'Orti
     </div>
 
     <md-dialog
@@ -154,13 +154,12 @@
           verranno raggruppate in una riga, andando a sommare il totale.
         </span>
         <md-field :class="{'md-invalid': noValidForm && newPeople.quantity < 1}">
+          <md-icon>groups</md-icon>
           <label>Numero di persone</label>
           <md-input v-model="newPeople.quantity" type="number" :min="1" required></md-input>
         </md-field>
-        <md-autocomplete v-if="!isMobileDevice" v-model="newPeople.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newPeople.days < 1}" required>
-          <label>Giorni di presenza</label>
-        </md-autocomplete>
-        <md-field v-else :class="{'md-invalid': noValidForm && newPeople.days < 1}">
+        <md-field :class="{'md-invalid': noValidForm && newPeople.days < 1}">
+          <md-icon>calendar_month</md-icon>
           <label>Giorni di presenza</label>
           <md-input v-model="newPeople.days" type="number" :min="1" required></md-input>
         </md-field>
@@ -218,18 +217,18 @@
         verranno raggruppate in una riga, andando a sommare il totale.
       </span>
       <md-field :class="{'md-invalid': noValidForm && newFamilies.quantity < 1}">
+        <md-icon>family_restroom</md-icon>
         <label>Numero di famiglie</label>
         <md-input v-model="newFamilies.quantity" type="number" :min="1" required></md-input>
       </md-field>
       <md-field :class="{'md-invalid': noValidForm && newFamilies.members < 2}">
+        <md-icon>groups</md-icon>
         <label>Numero di membri per famiglia</label>
         <md-input v-model="newFamilies.members" type="number" :min="2" required></md-input>
         <span class="md-error">Il numero di membri per famiglia deve essere almeno 2</span>
       </md-field>
-      <md-autocomplete v-if="!isMobileDevice" v-model="newFamilies.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newFamilies.days < 1}" required>
-        <label>Giorni di presenza</label>
-      </md-autocomplete>
-      <md-field v-else :class="{'md-invalid': noValidForm && newFamilies.days < 1}">
+      <md-field :class="{'md-invalid': noValidForm && newFamilies.days < 1}">
+        <md-icon>calendar_month</md-icon>
         <label>Giorni di presenza</label>
         <md-input v-model="newFamilies.days" type="number" :min="1" required></md-input>
       </md-field>
@@ -245,11 +244,12 @@
       @md-closed="onCloseDialog('exceptionalFamilies')"
     >
       <md-dialog-title>Aggiungi famiglia non omogenea</md-dialog-title>
-      <span v-if="!isEditing" class="info-box">
+      <span class="info-box">
         Aggiungi una famiglia in cui ci sono membri con un numero di presenze diverse l'uno dall'altro.<br v-if="!isMobileWidth">
         Inserisci il numero di membri totale, poi potrai scegliere il numero di presenze dei singoli membri.
       </span>
       <md-field :class="{'md-invalid': noValidForm && newExceptionalFamily.members < 2}">
+        <md-icon>groups</md-icon>
         <label>Numero di membri della famiglia</label>
         <md-input v-model="newExceptionalFamily.members" type="number" :min="2" required></md-input>
         <span class="md-error">Il numero di membri della famiglia deve essere almeno 2</span>
@@ -263,11 +263,17 @@
       :class="{'is-mobile-device': isMobileWidth}"
       :md-active.sync="showAddAttendancesDialog"
       :md-fullscreen="false"
+      @md-closed="onCloseDialog('exceptionalFamilies')"
     >
-    <md-dialog-title>Aggiungi membri e presenze</md-dialog-title>
+      <md-dialog-title>Aggiungi famiglia non omogenea</md-dialog-title>
+      <span class="info-box">
+        Aggiungi i membri raggruppati per giorni di presenza.<br v-if="!isMobileWidth">
+        Potrai salvare la famiglia solo quando avrai inserito tutti i membri con le relative presenze.
+      </span>
       <h3 class="md-invalid">
-        <md-icon :class="{ 'confirm': parseInt(selectedMemberNewExceptionalFamily) == parseInt(newExceptionalFamily.members) }">check_circle</md-icon> &nbsp;
-        {{ parseInt(selectedMemberNewExceptionalFamily) }}/{{ parseInt(newExceptionalFamily.members) }} membri aggiunti
+        <md-icon v-if="parseInt(selectedMemberNewExceptionalFamily) == parseInt(newExceptionalFamily.members)" class="confirm">check</md-icon> &nbsp;
+        <span :class="{confirm: parseInt(selectedMemberNewExceptionalFamily) == parseInt(newExceptionalFamily.members)}">{{ parseInt(selectedMemberNewExceptionalFamily) }}/{{ parseInt(newExceptionalFamily.members) }}</span>
+        membri aggiunti
       </h3>
       <md-list>
         <div
@@ -314,20 +320,24 @@
       :md-fullscreen="false"
       @md-opened="noValidForm = false"
     >
-      <h3
-        :class="{'invalid-text': parseInt(selectedMemberNewExceptionalFamily || 0) + parseInt(newAttendance.members || 0) > parseInt(newExceptionalFamily.members)}"
-      >
-        {{ parseInt(selectedMemberNewExceptionalFamily || 0) + parseInt(newAttendance.members || 0) }}/{{ parseInt(newExceptionalFamily.members) }}
+      <h3>
+        <span
+          :class="{
+            'invalid-text': parseInt(selectedMemberNewExceptionalFamily || 0) + parseInt(newAttendance.members || 0) > parseInt(newExceptionalFamily.members),
+            'confirm': parseInt(selectedMemberNewExceptionalFamily || 0) + parseInt(newAttendance.members || 0) == parseInt(newExceptionalFamily.members)
+          }"
+        >
+          {{ parseInt(selectedMemberNewExceptionalFamily || 0) + parseInt(newAttendance.members || 0) }}/{{ parseInt(newExceptionalFamily.members) }}
+        </span>
         membri aggiunti
       </h3>
       <md-field :class="{'md-invalid': noValidForm && (newAttendance.members < 1 || (parseInt(selectedMemberNewExceptionalFamily + newAttendance.members) > parseInt(newExceptionalFamily.members))) }">
+        <md-icon>groups</md-icon>
         <label>Numero di membri (min 1, max {{ newExceptionalFamily.members - selectedMemberNewExceptionalFamily }})</label>
-        <md-input v-model="newAttendance.members" type="number" :min="1" required></md-input>
+        <md-input v-model="newAttendance.members" type="number" :min="1" :max="parseInt(newExceptionalFamily.members) - parseInt(selectedMemberNewExceptionalFamily) + parseInt(newAttendance.members)" required></md-input>
       </md-field>
-      <md-autocomplete v-if="!isMobileDevice" v-model="newAttendance.days" type="number" :min="1" :md-options="autocompleteOptions" :class="{'md-invalid': noValidForm && newAttendance.days < 1}" required>
-        <label>Giorni di presenza</label>
-      </md-autocomplete>
-      <md-field v-else :class="{'md-invalid': noValidForm && newAttendance.days < 1}">
+      <md-field :class="{'md-invalid': noValidForm && newAttendance.days < 1}">
+        <md-icon>calendar_month</md-icon>
         <label>Giorni di presenza</label>
         <md-input v-model="newAttendance.days" type="number" :min="1" required></md-input>
       </md-field>
@@ -424,6 +434,14 @@ export default {
       handler() {
         let vm = this;
         vm.newExceptionalFamily.attendances = [];
+      }
+    },
+    errorSentence(newVal) {
+      let vm = this;
+      if (newVal) {
+        setTimeout(() => {
+          vm.errorSentence = null;
+        }, 2200)
       }
     }
   },
@@ -554,7 +572,6 @@ export default {
         vm.errorSentence = 'Aggiungi tutti i membri con le relative presenze per continuare';
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
-        vm.errorSentence = null;
       } else {
         vm.exceptionalFamilies.push({
           members: vm.newExceptionalFamily.members,
@@ -570,7 +587,6 @@ export default {
         vm.errorSentence = !vm.newAttendance.members || !vm.newAttendance.days ? null : 'Non puoi aggiungere un numero di membri maggiore al numero totale dei membri della famiglia';
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
-        vm.errorSentence = null;
       } else {
         const alreadyExist = vm.newExceptionalFamily.attendances.findIndex(attendance => attendance.days == vm.newAttendance.days);
         if (alreadyExist != -1) {
@@ -662,6 +678,15 @@ export default {
         vm.newFamilies = {
           days: null,
           quantity: null,
+          members: null
+        };
+      } else if (vm.isEditing && dialog == 'exceptionalFamilies') {
+        vm.newExceptionalFamily = {
+          members: null,
+          attendances: []
+        };
+        vm.newAttendance = {
+          days: null,
           members: null
         };
       }
@@ -886,10 +911,22 @@ h2 {
   color: #ff1744;
 }
 .family-attendances {
-  margin-left: 20px!important;
+  margin-left: 15px!important;
+  padding-left: 5px;
+  position: relative;
 }
 .is-mobile-width .family-attendances {
   margin-left: 10px!important;
+}
+.is-mobile-width .family-attendances:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 65%;
+  border-left: 1px solid #00000037;
 }
 .is-mobile-width .md-list-item-content .md-list-action:last-of-type {
   margin: auto!important;
