@@ -169,7 +169,7 @@
       </md-dialog-actions>
     </md-dialog>
     <md-dialog
-      :class="{'is-mobile-device': isMobileWidth}"
+      :class="{'is-mobile-device': isMobileDevice}"
       :md-active.sync="showFamilyTypesDialog"
       :md-fullscreen="false"
     >
@@ -205,7 +205,7 @@
       </md-card>
     </md-dialog>
     <md-dialog
-      :class="{'is-mobile-device': isMobileWidth}"
+      :class="{'is-mobile-device': isMobileDevice}"
       :md-active.sync="showAddFamiliesDialog"
       :md-fullscreen="false"
       @md-closed="onCloseDialog('families')"
@@ -238,7 +238,7 @@
       </md-dialog-actions>
     </md-dialog>
     <md-dialog
-      :class="{'is-mobile-device': isMobileWidth}"
+      :class="{'is-mobile-device': isMobileDevice}"
       :md-active.sync="showAddExceptionalFamilyDialog"
       :md-fullscreen="false"
       @md-closed="onCloseDialog('exceptionalFamilies')"
@@ -260,7 +260,7 @@
       </md-dialog-actions>
     </md-dialog>
     <md-dialog
-      :class="{'is-mobile-device': isMobileWidth}"
+      :class="{'is-mobile-device': isMobileDevice}"
       :md-active.sync="showAddAttendancesDialog"
       :md-fullscreen="false"
       @md-closed="onCloseDialog('exceptionalFamilies')"
@@ -316,7 +316,7 @@
     <md-dialog
       :md-active.sync="showAddAttendanceDialog"
       class="add-attendance-dialog"
-      :class="{'is-mobile-device': isMobileWidth}"
+      :class="{'is-mobile-device': isMobileDevice}"
       :md-fullscreen="false"
       @md-opened="noValidForm = false"
     >
@@ -902,7 +902,7 @@ h2 {
   align-items: center;
 }
 .add-attendance-dialog .md-dialog-container {
-  min-width: 340px;
+  min-width: 350px;
 }
 .md-button .md-disabled .md-icon {
   color: rgba(0,0,0,0.26)!important;
