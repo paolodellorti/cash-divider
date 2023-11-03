@@ -902,7 +902,7 @@ h2 {
   align-items: center;
 }
 .add-attendance-dialog .md-dialog-container {
-  min-width: 310px;
+  min-width: 340px;
 }
 .md-button .md-disabled .md-icon {
   color: rgba(0,0,0,0.26)!important;
