@@ -36,7 +36,7 @@
         <md-list-item>
           <md-icon>{{ peopleGroup.quantity == 1 ? 'person' : peopleGroup.quantity == 2 ? 'group' : 'groups' }}</md-icon>
           <span class="md-list-item-text">
-            <span>
+            <span v-if="peopleGroup.name">
               <b>{{ peopleGroup.name }}</b>
             </span>
             <span><b>{{ peopleGroup.quantity }}</b> person{{ peopleGroup.quantity == 1 ? 'a' : 'e' }}
@@ -76,7 +76,7 @@
         <md-list-item>
           <md-icon>family_restroom</md-icon>
           <span class="md-list-item-text">
-            <span>
+            <span v-if="family.name">
               <b>{{family.name}}</b>
             </span>
             <span>
@@ -104,7 +104,7 @@
         <md-list-item>
           <md-icon>family_restroom</md-icon>
           <span class="md-list-item-text">
-            <span>
+            <span v-if="family.name">
               <b>{{family.name}}</b>
             </span>
             <span>
@@ -165,11 +165,6 @@
           Aggiungi una o più persone con lo stesso numero di presenze.<br v-if="!isMobileWidth">
           Usa il nome per identificare la persona singola o la casa.
         </span>
-        <md-field :class="{'md-invalid': noValidForm && !newPeople.name}">
-          <md-icon>badge</md-icon>
-          <label>Nome</label>
-          <md-input v-model="newPeople.name" required></md-input>
-        </md-field>
         <md-field :class="{'md-invalid': noValidForm && newPeople.quantity < 1}">
           <md-icon>groups</md-icon>
           <label>Numero di persone</label>
@@ -184,6 +179,11 @@
           <md-icon>euro</md-icon>
           <label>Anticipo</label>
           <md-input v-model="newPeople.advancePayment" type="number" :min="0"></md-input>
+        </md-field>
+        <md-field>
+          <md-icon>badge</md-icon>
+          <label>Nome</label>
+          <md-input v-model="newPeople.name"></md-input>
         </md-field>
       <md-dialog-actions>
         <md-button @click="showAddPeopleDialog = false">Annulla</md-button>
@@ -236,11 +236,6 @@
       <span v-if="isEditing === null" class="info-box">
         Aggiungi una o più famiglie con lo stesso numero di membri e presenze.
       </span>
-      <md-field :class="{'md-invalid': noValidForm && !newFamilies.name}">
-        <md-icon>badge</md-icon>
-        <label>Nome</label>
-        <md-input v-model="newFamilies.name" required></md-input>
-      </md-field>
       <md-field :class="{'md-invalid': noValidForm && newFamilies.quantity < 1}">
         <md-icon>family_restroom</md-icon>
         <label>Numero di famiglie</label>
@@ -262,6 +257,11 @@
         <label>Anticipo</label>
         <md-input v-model="newFamilies.advancePayment" type="number" :min="0"></md-input>
       </md-field>
+      <md-field>
+        <md-icon>badge</md-icon>
+        <label>Nome</label>
+        <md-input v-model="newFamilies.name"></md-input>
+      </md-field>
       <md-dialog-actions>
         <md-button @click="showAddFamiliesDialog = false">Annulla</md-button>
         <md-button class="md-primary" @click="addFamilies">{{ isEditing !== null ? 'Modifica' : 'Aggiungi' }}</md-button>
@@ -278,11 +278,6 @@
         Aggiungi una famiglia in cui ci sono membri con un numero di presenze diverse l'uno dall'altro.<br v-if="!isMobileWidth">
         Inserisci il nome e il numero di membri totali, poi potrai scegliere il numero di presenze dei singoli membri.
       </span>
-      <md-field :class="{'md-invalid': noValidForm && !newExceptionalFamily.name}">
-        <md-icon>badge</md-icon>
-        <label>Nome</label>
-        <md-input v-model="newExceptionalFamily.name" required></md-input>
-      </md-field>
       <md-field :class="{'md-invalid': noValidForm && newExceptionalFamily.members < 2}">
         <md-icon>groups</md-icon>
         <label>Numero di membri della famiglia</label>
@@ -293,6 +288,11 @@
         <md-icon>euro</md-icon>
         <label>Anticipo</label>
         <md-input v-model="newExceptionalFamily.advancePayment" type="number" :min="0"></md-input>
+      </md-field>
+      <md-field>
+        <md-icon>badge</md-icon>
+        <label>Nome</label>
+        <md-input v-model="newExceptionalFamily.name"></md-input>
       </md-field>
       <md-dialog-actions>
         <md-button @click="showAddExceptionalFamilyDialog = false">Annulla</md-button>
@@ -557,6 +557,7 @@ export default {
       if (vm.deletingPeople !== null) {
         const peopleGroup = vm.people[vm.deletingPeople];
         return `
+          ${peopleGroup.name ? '<b>' + peopleGroup.name + '</b><br>' : ''}
           <b>${peopleGroup.name}</b><br>
           <b>${peopleGroup.quantity}</b> person${peopleGroup.quantity == 1 ? 'a' : 'e'}
           con <b>${peopleGroup.days}</b> giorn${peopleGroup.days ? 'o' : 'i'} di presenza
@@ -565,7 +566,7 @@ export default {
       } else if (vm.deletingFamilies !== null) {
         const family = vm.families[vm.deletingFamilies];
         return `
-          <b>${family.name}</b><br>
+          ${family.name ? '<b>' + family.name + '</b><br>' : ''}
           <b>${family.quantity}</b> famigli${family.quantity == 1 ? 'a' : 'e'}
           di <b>${family.members}</b> membri<brZ
           con <b>${family.days}</b> giorn${family.days == 1 ? 'o' : 'i'} di presenza
@@ -573,7 +574,10 @@ export default {
         `
       } else if (vm.deletingExceptionalFamily !== null) {
         const exceptionalFamily = vm.exceptionalFamilies[vm.deletingExceptionalFamily];
-        let result = `<b>1</b> famiglia di <b>${exceptionalFamily.members}</b> membri di cui:<br>`;
+        let result = `
+          ${exceptionalFamily.name ? '<b>' + exceptionalFamily.name + '</b><br>' : ''}
+          <b>1</b> famiglia di <b>${exceptionalFamily.members}</b> membri di cui:<br>
+        `;
         for (const attendance of exceptionalFamily.attendances) {
           result += `
             &nbsp;&nbsp; - <b>${attendance.members}</b> membr${attendance.members == 1 ? 'o' : 'i'}
@@ -601,7 +605,7 @@ export default {
   methods: {
     addPeople() {
       let vm = this;
-      if (!vm.newPeople.name || vm.newPeople.quantity < 1 || vm.newPeople.days < 1) {
+      if (vm.newPeople.quantity < 1 || vm.newPeople.days < 1) {
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
       } else {
@@ -623,7 +627,7 @@ export default {
     },
     addFamilies() {
       let vm = this;
-      if (!vm.newFamilies.name || vm.newFamilies.quantity < 1 || vm.newFamilies.days < 1 || vm.newFamilies.members < 2) {
+      if (vm.newFamilies.quantity < 1 || vm.newFamilies.days < 1 || vm.newFamilies.members < 2) {
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
       } else {
@@ -787,7 +791,7 @@ export default {
     },
     checkAddAttendances() {
       let vm = this;
-      if (!vm.newExceptionalFamily.name || vm.newExceptionalFamily.members < 2) {
+      if (vm.newExceptionalFamily.members < 2) {
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
       } else {
