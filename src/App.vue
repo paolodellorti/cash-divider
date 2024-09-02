@@ -4,18 +4,18 @@
     <div class="results-cont md-elevation-2">
       <div class="labels">
         <div
-          v-for="size in [50,20,10,5,2,'0,50']"
+          v-for="size in [50,20,10,5,2,1,'0,50','0,20','0,10']"
           :key="size"
           class="label"
-          :class="{'no-border': size == '0,50'}"
+          :class="{'no-border': size == '0,10'}"
         >{{ size }} €</div>
       </div>
       <div class="results">
         <div
-          v-for="size in [50,20,10,5,2,0.5]"
+          v-for="size in [50,20,10,5,2,1,0.5,0.2,0.1]"
           :key="size"
           class="label"
-          :class="{'no-border': size == 0.5}"
+          :class="{'no-border': size == 0.1}"
         >{{ cashDivision[size] }}</div>
       </div>
     </div>
@@ -30,29 +30,35 @@
     <md-list class="md-elevation-2">
       <h2>Persone</h2>
       <div
-        v-for="(quantity, days, index) in people"
-        :key="days + 'people'"
+        v-for="(peopleGroup, index) in people"
+        :key="index"
       >
         <md-list-item>
-          <md-icon>{{ quantity == 1 ? 'person' : quantity == 2 ? 'group' : 'groups' }}</md-icon>
+          <md-icon>{{ peopleGroup.quantity == 1 ? 'person' : peopleGroup.quantity == 2 ? 'group' : 'groups' }}</md-icon>
           <span class="md-list-item-text">
             <span>
-              <b>{{ quantity }}</b> person{{ quantity == 1 ? 'a' : 'e' }} con <br v-if="isMobileWidth"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
+              <b>{{ peopleGroup.name }}</b>
+            </span>
+            <span><b>{{ peopleGroup.quantity }}</b> person{{ peopleGroup.quantity == 1 ? 'a' : 'e' }}
+              con <br v-if="isMobileWidth"><b>{{ peopleGroup.days }}</b> giorn{{ peopleGroup.days == 1 ? 'o': 'i' }} di presenza
+            </span>
+            <span v-if="peopleGroup.advancePayment">
+              <b>€ {{ peopleGroup.advancePayment }}</b> di anticipo
             </span>
           </span>
-          <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity)">
+          <md-button class="md-icon-button md-list-action" @click="openEditDialog(peopleGroup, index)">
             <md-icon class="md-primary">edit_square</md-icon>
             <md-tooltip v-if="!isMobileDevice" md-direction="top">Modifica</md-tooltip>
           </md-button>
-          <md-button class="md-icon-button md-list-action" @click="deletingPeople = days; showDeleteDialog = true">
+          <md-button class="md-icon-button md-list-action" @click="deletingPeople = index; showDeleteDialog = true">
             <md-icon class="md-accent">delete</md-icon>
             <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
           </md-button>
         </md-list-item>
-        <md-divider v-if="index + 1 < Object.keys(people).length"></md-divider>
+        <md-divider v-if="index + 1 < people.length"></md-divider>
       </div>
       <div
-        v-if="!Object.keys(people).length"
+        v-if="!people.length"
         class="no-data"
       >
         Nessun dato
@@ -64,31 +70,32 @@
     <md-list class="md-elevation-2">
       <h2>Famiglie</h2>
       <div
-        v-for="(familyData, members, index) in families"
-        :key="members + 'people'"
+        v-for="(family, index) in families"
+        :key="family.name"
       >
-        <div
-          v-for="(quantity, days) in familyData"
-          :key="quantity + 'people'"
-        >
-          <md-list-item>
-            <md-icon>family_restroom</md-icon>
-            <span class="md-list-item-text">
-              <span>
-                <b>{{ quantity }}</b> famigli{{ quantity == 1 ? 'a' : 'e' }} di <br v-if="isMobileWidth"><b>{{ members }}</b> membri con <br v-if="isMobileWidth"><b>{{ days }}</b> giorn{{ days == 1 ? 'o': 'i' }} di presenza
-              </span>
+        <md-list-item>
+          <md-icon>family_restroom</md-icon>
+          <span class="md-list-item-text">
+            <span>
+              <b>{{family.name}}</b>
             </span>
-            <md-button class="md-icon-button md-list-action" @click="openEditDialog(days, quantity, members)">
-              <md-icon class="md-primary">edit_square</md-icon>
-              <md-tooltip v-if="!isMobileDevice" md-direction="top">Modifica</md-tooltip>
-            </md-button>
-            <md-button class="md-icon-button md-list-action" @click="deletingFamilies = [members, days]; showDeleteDialog = true;">
-              <md-icon class="md-accent">delete</md-icon>
-              <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
-            </md-button>
-          </md-list-item>
-          <md-divider v-if="index + 1 < Object.keys(families).length || exceptionalFamilies.length"></md-divider>
-        </div>
+            <span>
+              <b>{{ family.quantity }}</b> famigli{{ family.quantity == 1 ? 'a' : 'e' }} di <br v-if="isMobileWidth"><b>{{ family.members }}</b> membri con <br v-if="isMobileWidth"><b>{{ family.days }}</b> giorn{{ family.days == 1 ? 'o': 'i' }} di presenza
+            </span>
+            <span v-if="family.advancePayment">
+              <b>€ {{ family.advancePayment }}</b> di anticipo
+            </span>
+          </span>
+          <md-button class="md-icon-button md-list-action" @click="openEditDialog(family, index)">
+            <md-icon class="md-primary">edit_square</md-icon>
+            <md-tooltip v-if="!isMobileDevice" md-direction="top">Modifica</md-tooltip>
+          </md-button>
+          <md-button class="md-icon-button md-list-action" @click="deletingFamilies = index; showDeleteDialog = true;">
+            <md-icon class="md-accent">delete</md-icon>
+            <md-tooltip v-if="!isMobileDevice" md-direction="top">Elimina</md-tooltip>
+          </md-button>
+        </md-list-item>
+        <md-divider v-if="index + 1 < families.length || exceptionalFamilies.length"></md-divider>
       </div>
       <div
         v-for="(family, index) in exceptionalFamilies"
@@ -97,6 +104,9 @@
         <md-list-item>
           <md-icon>family_restroom</md-icon>
           <span class="md-list-item-text">
+            <span>
+              <b>{{family.name}}</b>
+            </span>
             <span>
               <b>1</b> famiglia di <b>{{ family.members }}</b> membri di cui: <br>
               <div
@@ -108,6 +118,9 @@
                 <b>{{ attendance.days }}</b> giorn{{ attendance.days == 1 ? 'o': 'i' }} di presenza
               </div>
             </span>
+            <span v-if="family.advancePayment">
+              <b>€ {{ family.advancePayment }}</b> di anticipo
+            </span>
           </span>
           <md-button class="md-icon-button md-list-action" @click="deletingExceptionalFamily = index; showDeleteDialog = true;">
             <md-icon class="md-accent">delete</md-icon>
@@ -117,7 +130,7 @@
         <md-divider v-if="index + 1 < exceptionalFamilies.length"></md-divider>
       </div>
       <div
-        v-if="!Object.keys(families).length && !exceptionalFamilies.length"
+        v-if="!families.length && !exceptionalFamilies.length"
         class="no-data"
       >
         Nessun dato
@@ -130,7 +143,7 @@
     <div class="reset-button-cont">
       <md-button
         class="md-raised md-accent"
-        :disabled="!Object.keys(people).length && !Object.keys(families).length && !exceptionalFamilies.length"
+        :disabled="!people.length && !families.length && !exceptionalFamilies.length"
         @click="showResetDialog = true"
       >
         <md-icon class="md-primary">restart_alt</md-icon> Resetta
@@ -138,7 +151,7 @@
     </div>
 
     <div class="footer">
-      Pocket Money Manager v1.11<br>by Paolo Dell'Orti
+      Pocket Money Manager v3.0<br>by Paolo Dell'Orti
     </div>
 
     <md-dialog
@@ -147,12 +160,16 @@
       :md-fullscreen="false"
       @md-closed="onCloseDialog('people')"
     >
-      <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
-        <span v-if="!isEditing" class="info-box">
+      <md-dialog-title>{{ isEditing !== null ? 'Modifica' : 'Aggiungi persone' }}</md-dialog-title>
+        <span v-if="isEditing === null" class="info-box">
           Aggiungi una o più persone con lo stesso numero di presenze.<br v-if="!isMobileWidth">
-          Nel caso esistessero già persone con il numero di presenze indicato in questo form,<br v-if="!isMobileWidth">
-          verranno raggruppate in una riga, andando a sommare il totale.
+          Usa il nome per identificare la persona singola o la casa.
         </span>
+        <md-field :class="{'md-invalid': noValidForm && !newPeople.name}">
+          <md-icon>badge</md-icon>
+          <label>Nome</label>
+          <md-input v-model="newPeople.name" required></md-input>
+        </md-field>
         <md-field :class="{'md-invalid': noValidForm && newPeople.quantity < 1}">
           <md-icon>groups</md-icon>
           <label>Numero di persone</label>
@@ -163,9 +180,14 @@
           <label>Giorni di presenza</label>
           <md-input v-model="newPeople.days" type="number" :min="1" required></md-input>
         </md-field>
+        <md-field>
+          <md-icon>euro</md-icon>
+          <label>Anticipo</label>
+          <md-input v-model="newPeople.advancePayment" type="number" :min="0"></md-input>
+        </md-field>
       <md-dialog-actions>
         <md-button @click="showAddPeopleDialog = false">Annulla</md-button>
-        <md-button class="md-primary" @click="addPeople">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
+        <md-button class="md-primary" @click="addPeople">{{ isEditing !== null ? 'Modifica' : 'Aggiungi' }}</md-button>
       </md-dialog-actions>
     </md-dialog>
     <md-dialog
@@ -210,12 +232,15 @@
       :md-fullscreen="false"
       @md-closed="onCloseDialog('families')"
     >
-      <md-dialog-title>{{ isEditing ? 'Modifica' : 'Aggiungi famiglie' }}</md-dialog-title>
-      <span v-if="!isEditing" class="info-box">
-        Aggiungi una o più famiglie con lo stesso numero di membri e presenze.<br v-if="!isMobileWidth">
-        Nel caso esistessero già famiglie con il numero di membri e presenze indicato in questo form,<br v-if="!isMobileWidth">
-        verranno raggruppate in una riga, andando a sommare il totale.
+      <md-dialog-title>{{ isEditing !== null ? 'Modifica' : 'Aggiungi famiglie' }}</md-dialog-title>
+      <span v-if="isEditing === null" class="info-box">
+        Aggiungi una o più famiglie con lo stesso numero di membri e presenze.
       </span>
+      <md-field :class="{'md-invalid': noValidForm && !newFamilies.name}">
+        <md-icon>badge</md-icon>
+        <label>Nome</label>
+        <md-input v-model="newFamilies.name" required></md-input>
+      </md-field>
       <md-field :class="{'md-invalid': noValidForm && newFamilies.quantity < 1}">
         <md-icon>family_restroom</md-icon>
         <label>Numero di famiglie</label>
@@ -232,9 +257,14 @@
         <label>Giorni di presenza</label>
         <md-input v-model="newFamilies.days" type="number" :min="1" required></md-input>
       </md-field>
+      <md-field>
+        <md-icon>euro</md-icon>
+        <label>Anticipo</label>
+        <md-input v-model="newFamilies.advancePayment" type="number" :min="0"></md-input>
+      </md-field>
       <md-dialog-actions>
         <md-button @click="showAddFamiliesDialog = false">Annulla</md-button>
-        <md-button class="md-primary" @click="addFamilies">{{ isEditing ? 'Modifica' : 'Aggiungi' }}</md-button>
+        <md-button class="md-primary" @click="addFamilies">{{ isEditing !== null ? 'Modifica' : 'Aggiungi' }}</md-button>
       </md-dialog-actions>
     </md-dialog>
     <md-dialog
@@ -246,13 +276,23 @@
       <md-dialog-title>Aggiungi famiglia non omogenea</md-dialog-title>
       <span class="info-box">
         Aggiungi una famiglia in cui ci sono membri con un numero di presenze diverse l'uno dall'altro.<br v-if="!isMobileWidth">
-        Inserisci il numero di membri totale, poi potrai scegliere il numero di presenze dei singoli membri.
+        Inserisci il nome e il numero di membri totali, poi potrai scegliere il numero di presenze dei singoli membri.
       </span>
+      <md-field :class="{'md-invalid': noValidForm && !newExceptionalFamily.name}">
+        <md-icon>badge</md-icon>
+        <label>Nome</label>
+        <md-input v-model="newExceptionalFamily.name" required></md-input>
+      </md-field>
       <md-field :class="{'md-invalid': noValidForm && newExceptionalFamily.members < 2}">
         <md-icon>groups</md-icon>
         <label>Numero di membri della famiglia</label>
         <md-input v-model="newExceptionalFamily.members" type="number" :min="2" required></md-input>
         <span class="md-error">Il numero di membri della famiglia deve essere almeno 2</span>
+      </md-field>
+      <md-field>
+        <md-icon>euro</md-icon>
+        <label>Anticipo</label>
+        <md-input v-model="newExceptionalFamily.advancePayment" type="number" :min="0"></md-input>
       </md-field>
       <md-dialog-actions>
         <md-button @click="showAddExceptionalFamilyDialog = false">Annulla</md-button>
@@ -388,21 +428,27 @@ export default {
   name: 'CashDivider',
   data() {
     return {
-      people: {},
-      families: {},
+      people: [],
+      families: [],
       exceptionalFamilies: [],
       newPeople: {
+        name: null,
         quantity: null,
-        days: null
+        days: null,
+        advancePayment: null
       },
       newFamilies: {
+        name: null,
         quantity: null,
         members: null,
-        days: null
+        days: null,
+        advancePayment: null
       },
       newExceptionalFamily: {
+        name: null,
         members: null,
-        attendances: []
+        attendances: [],
+        advancePayment: null
       },
       newAttendance: {
         members: null,
@@ -456,13 +502,42 @@ export default {
         10: 0,
         5: 0,
         2: 0,
-        0.5: 0
+        1: 0,
+        0.5: 0,
+        0.2: 0,
+        0.1: 0
+      };
+      const calculateTotal = (days, members = 1, advancePayment = 0) => {
+        return (days * 2.5 * members) - advancePayment;
+      };
+
+      const updateResult = (total, quantity = 1) => {
+        for (const cashSize of [50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1]) {
+          if (total / cashSize >= 1) {
+            let count = parseInt(total / cashSize);
+            result[cashSize] += count * quantity;
+            let deduction = Math.round(cashSize * count * 100) / 100;
+            total = Math.round((total - deduction) * 100) / 100;
+          }
+        }
+        return total;
+      };
+      for (const person of vm.people) {
+        let total = calculateTotal(person.days, 1, person.advancePayment);
+        updateResult(total, person.quantity);
       }
-      result = vm.calculateCashDivision(vm.people, result);
-      for (const [familymembers, family] of Object.entries(vm.families)) {
-        result = vm.calculateCashDivision(family, result, familymembers);
+      for (const family of vm.families) {
+        let total = calculateTotal(family.days, family.members, family.advancePayment);
+        updateResult(total, family.quantity);
       }
-      result = vm.calculateCashDivision(vm.exceptionalFamilies, result);
+      for (const family of vm.exceptionalFamilies) {
+        let total = 0;
+        for (const attendance of family.attendances) {
+          total += calculateTotal(attendance.days, attendance.members);
+        }
+        total -= (family.advancePayment || 0);
+        updateResult(total);
+      }
       return result;
     },
     cashTotal() {
@@ -479,25 +554,33 @@ export default {
     },
     deletingDataSentence() {
       let vm = this;
-      if (vm.deletingPeople) {
+      if (vm.deletingPeople !== null) {
+        const peopleGroup = vm.people[vm.deletingPeople];
         return `
-          <b>${vm.people[vm.deletingPeople]}</b> person${vm.people[vm.deletingPeople] == 1 ? 'a' : 'e'}
-          con <b>${vm.deletingPeople}</b> giorn${vm.deletingPeople == 1 ? 'o' : 'i'} di presenza
+          <b>${peopleGroup.name}</b><br>
+          <b>${peopleGroup.quantity}</b> person${peopleGroup.quantity == 1 ? 'a' : 'e'}
+          con <b>${peopleGroup.days}</b> giorn${peopleGroup.days ? 'o' : 'i'} di presenza
+          ${peopleGroup.advancePayment ? '<br> <b>€' + peopleGroup.advancePayment + '</b> anticipo' : ''}
         `
-      } else if (vm.deletingFamilies) {
+      } else if (vm.deletingFamilies !== null) {
+        const family = vm.families[vm.deletingFamilies];
         return `
-          <b>${vm.families[vm.deletingFamilies[0]][vm.deletingFamilies[1]]}</b> famigli${vm.families[vm.deletingFamilies[0]][vm.deletingFamilies[1]] == 1 ? 'a' : 'e'}
-          di <b>${vm.deletingFamilies[0]}</b> membri
-          con <b>${vm.deletingFamilies[1]}</b> giorn${vm.deletingFamilies[1] == 1 ? 'o' : 'i'} di presenza
+          <b>${family.name}</b><br>
+          <b>${family.quantity}</b> famigli${family.quantity == 1 ? 'a' : 'e'}
+          di <b>${family.members}</b> membri<brZ
+          con <b>${family.days}</b> giorn${family.days == 1 ? 'o' : 'i'} di presenza
+          ${family.advancePayment ? '<br> <b>€' + family.advancePayment + '</b> anticipo' : ''}
         `
       } else if (vm.deletingExceptionalFamily !== null) {
-        let result = `<b>1</b> famiglia di <b>${vm.exceptionalFamilies[vm.deletingExceptionalFamily].members}</b> membri di cui:<br>`;
-        for (const attendance of vm.exceptionalFamilies[vm.deletingExceptionalFamily].attendances) {
+        const exceptionalFamily = vm.exceptionalFamilies[vm.deletingExceptionalFamily];
+        let result = `<b>1</b> famiglia di <b>${exceptionalFamily.members}</b> membri di cui:<br>`;
+        for (const attendance of exceptionalFamily.attendances) {
           result += `
             &nbsp;&nbsp; - <b>${attendance.members}</b> membr${attendance.members == 1 ? 'o' : 'i'}
             con <b>${attendance.days}</b> giorn${attendance.days == 1 ? 'o' : 'i'} di presenza<br>
           `
         }
+        result += exceptionalFamily.advancePayment ? '<br> <b>€' + exceptionalFamily.advancePayment + '</b> anticipo' : ''
         return result;
       }
       return '';
@@ -518,22 +601,21 @@ export default {
   methods: {
     addPeople() {
       let vm = this;
-      if (vm.newPeople.quantity < 1 || vm.newPeople.days < 1) {
+      if (!vm.newPeople.name || vm.newPeople.quantity < 1 || vm.newPeople.days < 1) {
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
       } else {
         vm.trigger ++;
-        if (vm.isEditing) {
-          delete vm.people[vm.isEditing];
-        }
-        if (vm.people[parseInt(vm.newPeople.days)]) {
-          vm.people[parseInt(vm.newPeople.days)] += parseInt(vm.newPeople.quantity);
+        if (vm.isEditing !== null) {
+          vm.people[vm.isEditing] = vm.newPeople;
         } else {
-          vm.people[parseInt(vm.newPeople.days)] = parseInt(vm.newPeople.quantity);
+          vm.people.push(vm.newPeople);
         }
         vm.newPeople = {
+          name: null,
           quantity: null,
-          days: null
+          days: null,
+          advancePayment: null
         };
         vm.noValidForm = false;
         vm.showAddPeopleDialog = false;
@@ -541,26 +623,21 @@ export default {
     },
     addFamilies() {
       let vm = this;
-      if (vm.newFamilies.quantity < 1 || vm.newFamilies.days < 1 || vm.newFamilies.members < 2) {
+      if (!vm.newFamilies.name || vm.newFamilies.quantity < 1 || vm.newFamilies.days < 1 || vm.newFamilies.members < 2) {
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
       } else {
         vm.trigger ++;
-        if (vm.isEditing) {
-          delete vm.families[vm.isEditing[0]][vm.isEditing[1]];
-        }
-        if (vm.families[parseInt(vm.newFamilies.members)] && vm.families[parseInt(vm.newFamilies.members)][parseInt(vm.newFamilies.days)]) {
-          vm.families[parseInt(vm.newFamilies.members)][parseInt(vm.newFamilies.days)] += parseInt(vm.newFamilies.quantity);
+        if (vm.isEditing !== null) {
+          vm.families[vm.isEditing] = vm.newFamilies;
         } else {
-          vm.families[parseInt(vm.newFamilies.members)] = {
-            ...vm.families[parseInt(vm.newFamilies.members)],
-            [parseInt(vm.newFamilies.days)]: parseInt(vm.newFamilies.quantity)
-          };
+          vm.families.push(vm.newFamilies);
         }
         vm.newFamilies = {
           quantity: null,
           members: null,
-          days: null
+          days: null,
+          advancePayment: null
         };
         vm.noValidForm = false;
         vm.showAddFamiliesDialog = false;
@@ -574,7 +651,9 @@ export default {
         vm.showErrorSnackbar = true;
       } else {
         vm.exceptionalFamilies.push({
+          name: vm.newExceptionalFamily.name,
           members: vm.newExceptionalFamily.members,
+          advancePayment: vm.newExceptionalFamily.advancePayment,
           attendances: vm.newExceptionalFamily.attendances
         });
         vm.newExceptionalFamily.members = null;
@@ -608,13 +687,10 @@ export default {
     deleteData() {
       let vm = this;
       vm.trigger ++;
-      if (vm.deletingPeople) {
-        delete vm.people[vm.deletingPeople];
-      } else if (vm.deletingFamilies) {
-        delete vm.families[vm.deletingFamilies[0]][vm.deletingFamilies[1]];
-        if (!Object.keys(vm.families[vm.deletingFamilies[0]]).length) {
-          delete vm.families[vm.deletingFamilies[0]];
-        }
+      if (vm.deletingPeople !== null) {
+        vm.people.splice(vm.deletingPeople, 1)
+      } else if (vm.deletingFamilies !== null) {
+        vm.families.splice(vm.deletingFamilies, 1)
       } else if (vm.deletingExceptionalFamily !== null) {
         vm.exceptionalFamilies.splice(vm.deletingExceptionalFamily, 1);
       }
@@ -626,42 +702,53 @@ export default {
     resetAll() {
       let vm = this;
       vm.trigger ++;
-      vm.people = {};
-      vm.families = {};
+      vm.people = [];
+      vm.families = [];
       vm.exceptionalFamilies = [];
       vm.newPeople = {
+        name: null,
         quantity: null,
-        days: null
+        days: null,
+        advancePayment: null
       };
       vm.newFamilies = {
+        name: null,
         quantity: null,
         members: null,
-        days: null
+        days: null,
+        advancePayment: null
       };
       vm.newExceptionalFamily = {
+        name: null,
         members: null,
+        advancePayment: null,
         attendances: []
       };
       vm.newAttendance = {
+        name: null,
         members: null,
         days: null
       };
       vm.showResetDialog = false;
     },
-    openEditDialog(days, quantity, members = null) {
+    openEditDialog(peopleGroup, index) {
       let vm = this;
-      vm.isEditing = members ? [members, days] : days;
-      if (!members) {
+      vm.isEditing = index;
+      if (!peopleGroup.members) {
         vm.newPeople = {
-          days: days,
-          quantity: quantity
+          name: peopleGroup.name,
+          days: peopleGroup.days,
+          quantity: peopleGroup.quantity,
+          advancePayment: peopleGroup.advancePayment
         };
         vm.showAddPeopleDialog = true;
       } else {
         vm.newFamilies = {
-          days: days,
-          quantity: quantity,
-          members: members
+          name: peopleGroup.name,
+          days: peopleGroup.days,
+          quantity: peopleGroup.quantity,
+          members: peopleGroup.members,
+          advancePayment: peopleGroup.advancePayment
         };
         vm.showAddFamiliesDialog = true;
       }
@@ -669,21 +756,27 @@ export default {
     onCloseDialog(dialog) {
       let vm = this;
       vm.noValidForm = false;
-      if (vm.isEditing && dialog == 'people') {
+      if (vm.isEditing !== null && dialog == 'people') {
         vm.newPeople = {
+          name: null,
           days: null,
           quantity: null,
+          advancePayment: null
         };
-      } else if (vm.isEditing && dialog == 'families') {
+      } else if (vm.isEditing !== null  && dialog == 'families') {
         vm.newFamilies = {
+          name: null,
           days: null,
           quantity: null,
-          members: null
-        };
-      } else if (vm.isEditing && dialog == 'exceptionalFamilies') {
-        vm.newExceptionalFamily = {
           members: null,
-          attendances: []
+          advancePayment: null
+        };
+      } else if (vm.isEditing !== null && dialog == 'exceptionalFamilies') {
+        vm.newExceptionalFamily = {
+          name: null,
+          members: null,
+          attendances: [],
+          advancePayment: null
         };
         vm.newAttendance = {
           days: null,
@@ -694,7 +787,7 @@ export default {
     },
     checkAddAttendances() {
       let vm = this;
-      if (vm.newExceptionalFamily.members < 2) {
+      if (!vm.newExceptionalFamily.name || vm.newExceptionalFamily.members < 2) {
         vm.noValidForm = true;
         vm.showErrorSnackbar = true;
       } else {
@@ -705,9 +798,9 @@ export default {
     copyText() {
       let vm = this;
       let result = '';
-      for (let cashSize of [50,20,10,5,2,0.5]) {
+      for (let cashSize of [50,20,10,5,2,1,0.5,0.2,0.1]) {
         if (vm.cashDivision[cashSize]) {
-          const cashSizeLabel = cashSize == 0.5 ? '0,50' : cashSize;
+          const cashSizeLabel = cashSize == 0.5 ? '0,50' : cashSize == 0.2 ? '0,20' : cashSize == 0.1 ? '0,10' : cashSize;
           result += cashSizeLabel + ' € => ' + vm.cashDivision[cashSize] + '\r\n';
         }
       }
@@ -715,40 +808,18 @@ export default {
       navigator.clipboard.writeText(result);
       vm.showCopySnackbar = true;
     },
-    calculateCashDivision(object, result, familymembers = 1) {
-      if (!Array.isArray(object)) {
-        for (const [days, quantity] of Object.entries(object)) {
-          let total = days * 2.5 * familymembers;
-          for (const cashSize of [50, 20, 10, 5, 2, 1, 0.5]) {
-            if (total / cashSize >= 1) {
-              result[cashSize] += parseInt(total / cashSize) * quantity;
-              total -= cashSize * parseInt(total / cashSize);
-            }
-          }
-        }
-      } else {
-        for (const family of object) {
-          let total = 0;
-          for (const attendance of family.attendances) {
-            total += attendance.days * 2.5 * attendance.members;
-          }
-          for (const cashSize of [50, 20, 10, 5, 2, 1, 0.5]) {
-            if (total / cashSize >= 1) {
-              result[cashSize] += parseInt(total / cashSize);
-              total -= cashSize * parseInt(total / cashSize);
-            }
-          }
-        }
-      }
-      return result;
-    }
   },
   beforeMount() {
     let vm = this;
     if (localStorage.cashDivisor) {
-      vm.people = JSON.parse(localStorage.cashDivisor)[0];
-      vm.families = JSON.parse(localStorage.cashDivisor)[1];
-      vm.exceptionalFamilies = JSON.parse(localStorage.cashDivisor)[2];
+      let data = JSON.parse(localStorage.cashDivisor);
+      if (Array.isArray(data[0]) && Array.isArray(data[1]) && Array.isArray(data[2])) {
+        vm.people = data[0];
+        vm.families = data[1];
+        vm.exceptionalFamilies = data[2];
+      } else {
+        localStorage.setItem('cashDivisor', JSON.stringify([[], [], []]));
+      }
     }
   },
   created() {
