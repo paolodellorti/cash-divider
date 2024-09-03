@@ -151,7 +151,7 @@
     </div>
 
     <div class="footer">
-      Pocket Money Manager v3.0<br>by Paolo Dell'Orti
+      Pocket Money Manager v2.0<br>by Paolo Dell'Orti
     </div>
 
     <md-dialog
