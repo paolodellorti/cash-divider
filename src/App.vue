@@ -890,6 +890,7 @@ h2 {
 }
 .md-dialog-container {
   padding: 0 20px;
+  overflow: auto!important;
 }
 .md-list-item-text :nth-child(2), .md-list-item-text :nth-child(3) {
   font-size: 16px!important;
